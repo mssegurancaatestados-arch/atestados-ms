@@ -210,6 +210,9 @@
   .btn-validar{padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:10px;
     font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
   .btn-validar:hover{background:var(--blue-dark)}
+  .btn-excluir{padding:11px 24px;background:#fff;color:var(--red);border:1.5px solid #f5c6cb;
+    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;margin-right:auto}
+  .btn-excluir:hover{background:var(--red);color:#fff;border-color:var(--red)}
 
   /* TOAST */
   #toast{position:fixed;top:22px;right:22px;padding:13px 22px;border-radius:11px;color:#fff;
@@ -382,8 +385,9 @@
       <strong>Obs. do RH: </strong><span id="mObsText"></span>
     </div>
     <div class="modal-actions" id="mActions" style="display:none">
-      <button class="btn-recusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
-      <button class="btn-validar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
+      <button class="btn-excluir" id="btnExcluir" onclick="excluirAtestado()" style="display:none">🗑️ Excluir</button>
+      <button class="btn-recusar" id="btnRecusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
+      <button class="btn-validar" id="btnValidar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
     </div>
   </div>
 </div>
@@ -659,7 +663,10 @@ function openModal(docId){
   oa.style.display=ov.style.display=ma.style.display='none';
   if(currentRole==='rh'){
     oa.style.display='block'; mo.value=a.observacao||'';
-    if(a.status==='Pendente') ma.style.display='flex';
+    ma.style.display='flex';
+    document.getElementById('btnExcluir').style.display='inline-block';
+    document.getElementById('btnRecusar').style.display = a.status==='Pendente' ? 'inline-block' : 'none';
+    document.getElementById('btnValidar').style.display = a.status==='Pendente' ? 'inline-block' : 'none';
   } else if(a.observacao){
     ov.style.display='block'; document.getElementById('mObsText').textContent=a.observacao;
   }
@@ -683,6 +690,18 @@ async function validateAtestado(ns){
 // ══════════════════════════════════════════════════
 //  SUPERVISORES
 // ══════════════════════════════════════════════════
+async function excluirAtestado(){
+  const a = atestados.find(x=>x._docId===currentId);
+  if(!a) return;
+  if(!confirm(`Excluir o atestado de "${a.funcionario}"?
+Esta ação não pode ser desfeita.`)) return;
+  try {
+    await db.collection('atestados').doc(currentId).delete();
+    document.getElementById('overlay').classList.remove('open');
+    showToast('Atestado excluído com sucesso.','error');
+  } catch(err){ showToast('Erro ao excluir: '+err.message,'error'); }
+}
+
 function renderSupList(){
   const list=document.getElementById('supList'), empty=document.getElementById('supEmpty');
   document.getElementById('supCount').textContent=`${supervisores.length} supervisor(es)`;
