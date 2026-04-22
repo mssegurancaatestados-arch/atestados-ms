@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>M.S Segurança e Serviços – Gestão de Atestados</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --blue:#2B5BAD; --blue-dark:#1a3a75; --blue-light:#e8eef8; --blue-mid:#d0daf0;
+    --gray-light:#f0f2f7; --gray-border:#e0e4ec;
+    --green:#1e7e34; --green-bg:#e6f4ea;
+    --yellow:#856404; --yellow-bg:#fff8e1;
+    --red:#c62828; --red-bg:#fdecea;
+    --text:#1a2035;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Barlow',sans-serif;background:var(--gray-light);color:var(--text);min-height:100vh}
+
+  @keyframes fadeUp  {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideIn {from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastIn {from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+
+  /* LOGIN */
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(140deg,#0e1f4a 0%,#1a3a75 40%,#2B5BAD 75%,#4a7fd4 100%);position:relative;overflow:hidden}
+  #loginScreen::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 70% 60% at 80% 20%,rgba(255,255,255,.06) 0%,transparent 60%),
+               radial-gradient(ellipse 50% 40% at 10% 80%,rgba(255,255,255,.04) 0%,transparent 60%)}
+  .login-card{background:#fff;border-radius:20px;padding:52px 44px 40px;width:440px;
+    box-shadow:0 32px 80px rgba(0,0,0,.35);position:relative;z-index:1;animation:fadeUp .5s ease both}
+  .login-logo{text-align:center;margin-bottom:28px}
+  .login-ms{font-family:'Barlow Condensed',sans-serif;font-size:72px;font-weight:900;line-height:1;letter-spacing:-2px}
+  .login-ms .m,.login-ms .s{color:var(--blue)} .login-ms .dot{color:#9EA7B2}
+  .login-brand{font-size:9px;font-weight:700;letter-spacing:5px;color:#9EA7B2;text-transform:uppercase;margin-top:2px}
+  .login-title{font-size:22px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:4px}
+  .login-sub{font-size:14px;color:#999;text-align:center;margin-bottom:36px}
+  .login-btn{display:flex;align-items:center;gap:18px;width:100%;padding:20px 24px;border-radius:14px;
+    cursor:pointer;text-align:left;transition:all .2s;margin-bottom:12px;border:2px solid transparent}
+  .login-btn:last-of-type{margin-bottom:0}
+  .login-btn.rh{background:var(--blue-light);border-color:var(--blue)}
+  .login-btn.sup{background:#fafafa;border-color:#e0e0e0}
+  .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(43,91,173,.18)}
+  .btn-icon{font-size:30px;flex-shrink:0} .btn-label{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .btn-desc{font-size:12px;color:#888;margin-top:2px}
+  .login-footer{text-align:center;font-size:11px;color:#bbb;margin-top:32px}
+
+  /* APP SHELL */
+  #app{display:none;min-height:100vh;flex-direction:column}
+  .app-header{background:#fff;height:66px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 32px;box-shadow:0 2px 14px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;border-bottom:3px solid var(--blue)}
+  .hdr-logo{display:flex;align-items:center;gap:14px}
+  .hdr-ms{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1;letter-spacing:-1px}
+  .hdr-ms .m,.hdr-ms .s{color:var(--blue)} .hdr-ms .dot{color:#9EA7B2}
+  .hdr-divider{width:1px;height:32px;background:#e0e4ec}
+  .hdr-title{font-size:15px;font-weight:800;color:var(--blue-dark);line-height:1.2}
+  .hdr-sub{font-size:10px;font-weight:600;color:#999;letter-spacing:2px;text-transform:uppercase}
+  .hdr-right{display:flex;align-items:center;gap:10px}
+  .hdr-role{background:var(--blue-light);color:var(--blue);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700}
+  .hdr-btn{background:none;border:1px solid #ddd;padding:8px 16px;border-radius:8px;cursor:pointer;
+    color:#666;font-size:13px;font-weight:600;font-family:'Barlow',sans-serif;transition:all .2s}
+  .hdr-btn:hover{border-color:#bbb;background:#f5f5f5}
+
+  /* NAV TABS */
+  .nav-tabs{background:#fff;border-bottom:1px solid #eef0f5;display:flex;padding:0 32px;gap:4px}
+  .nav-tab{padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;
+    border-bottom:3px solid transparent;color:#888;transition:all .2s;
+    border:none;background:none;font-family:'Barlow',sans-serif;user-select:none}
+  .nav-tab:hover{color:var(--blue)}
+  .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+  /* MAIN */
+  .app-main{padding:28px 32px;max-width:1240px;width:100%;margin:0 auto}
+
+  /* STATS */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .stat-card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:0 2px 10px rgba(0,0,0,.06);
+    border-top:4px solid var(--c);display:flex;align-items:center;gap:14px;animation:fadeUp .4s ease both}
+  .stat-icon{font-size:26px} .stat-val{font-size:30px;font-weight:900;color:var(--c);line-height:1}
+  .stat-lbl{font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+  .toolbar input,.toolbar select{padding:10px 15px;border:1.5px solid var(--gray-border);border-radius:10px;
+    font-size:13px;background:#fff;font-family:'Barlow',sans-serif;outline:none;transition:border .2s;color:var(--text)}
+  .toolbar input{flex:1;min-width:220px}
+  .toolbar input:focus,.toolbar select:focus{border-color:var(--blue)}
+  .btn-add{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
+  .btn-add:hover{background:var(--blue-dark);transform:translateY(-1px)}
+  .btn-add.cancel{background:#dc3545}
+
+  /* FORM */
+  .form-card{background:#fff;border-radius:16px;margin-bottom:24px;
+    box-shadow:0 6px 24px rgba(43,91,173,.13);border:1.5px solid var(--blue-mid);
+    animation:slideIn .25s ease both;overflow:hidden}
+  .form-head{padding:18px 26px;background:linear-gradient(90deg,var(--blue-light) 0%,#fff 100%);
+    border-bottom:1px solid var(--blue-mid);font-size:15px;font-weight:800;color:var(--blue-dark)}
+  .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:22px 26px 10px}
+  .form-field label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+  .form-field input,.form-field select,.form-field textarea{width:100%;padding:9px 13px;
+    border:1.5px solid var(--gray-border);border-radius:9px;font-size:13px;background:#fafbff;
+    font-family:'Barlow',sans-serif;color:var(--text);outline:none;transition:border .2s}
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--blue);background:#fff}
+  .form-obs{padding:0 26px 14px}
+  .form-obs label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+  .form-obs textarea{width:100%;resize:vertical;font-family:'Barlow',sans-serif;padding:9px 13px;
+    border:1.5px solid var(--gray-border);border-radius:9px;font-size:13px;background:#fafbff;outline:none;transition:border .2s}
+  .form-obs textarea:focus{border-color:var(--blue)}
+  .form-footer{padding:14px 26px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
+  .btn-cancel2{padding:10px 20px;background:#fff;border:1.5px solid #ddd;border-radius:9px;
+    cursor:pointer;font-size:13px;color:#666;font-family:'Barlow',sans-serif;font-weight:600}
+  .btn-save{padding:10px 26px;background:var(--blue);color:#fff;border:none;border-radius:9px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s}
+  .btn-save:hover{background:var(--blue-dark)}
+
+  /* TABLE */
+  .table-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;animation:fadeUp .4s .1s ease both}
+  .table-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eef0f5}
+  .table-title{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .table-count{font-size:12px;color:#aaa;background:#f5f6fa;padding:4px 14px;border-radius:20px;font-weight:600}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  thead th{padding:11px 16px;text-align:left;font-size:10px;font-weight:800;color:#999;
+    text-transform:uppercase;letter-spacing:.6px;background:#f8f9fb;border-bottom:1px solid #eef0f5;white-space:nowrap}
+  tbody td{padding:13px 16px;font-size:13px;color:#333;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none} tbody tr:hover td{background:#f5f8ff}
+  .td-name{font-weight:700;color:var(--text)}
+  .td-mat{background:var(--blue-light);color:var(--blue);padding:2px 9px;border-radius:5px;font-size:11px;font-family:monospace;font-weight:700}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
+  .badge-dot{width:7px;height:7px;border-radius:50%}
+  .badge.validado{background:var(--green-bg);color:var(--green)} .badge.validado .badge-dot{background:#28a745}
+  .badge.pendente{background:var(--yellow-bg);color:var(--yellow)} .badge.pendente .badge-dot{background:#ffc107}
+  .badge.recusado{background:var(--red-bg);color:var(--red)} .badge.recusado .badge-dot{background:#dc3545}
+  .btn-view{padding:5px 14px;background:var(--blue-light);color:var(--blue);border:none;border-radius:7px;
+    cursor:pointer;font-weight:700;font-size:12px;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-view:hover{background:var(--blue);color:#fff}
+  .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
+  .empty-state span{font-size:40px;display:block;margin-bottom:12px}
+
+  /* SUPERVISORES PANEL */
+  #supPanel{display:none;animation:fadeUp .3s ease both}
+  .sup-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden}
+  .sup-head{padding:20px 26px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:center}
+  .sup-head-title{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .sup-head-sub{font-size:12px;color:#999;margin-top:3px}
+  .sup-add-row{display:flex;gap:10px;padding:18px 26px;border-bottom:1px solid #eef0f5;background:var(--blue-light)}
+  .sup-add-row input{flex:1;padding:10px 14px;border:1.5px solid var(--blue-mid);border-radius:9px;
+    font-size:14px;font-family:'Barlow',sans-serif;outline:none;background:#fff;transition:border .2s}
+  .sup-add-row input:focus{border-color:var(--blue)}
+  .btn-sup-add{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:9px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap;transition:all .2s}
+  .btn-sup-add:hover{background:var(--blue-dark)}
+  .sup-list{list-style:none}
+  .sup-item{display:flex;align-items:center;gap:14px;padding:14px 26px;border-bottom:1px solid #f0f2f5;transition:background .15s}
+  .sup-item:last-child{border-bottom:none} .sup-item:hover{background:#f8f9fb}
+  .sup-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+  .sup-name-wrap{flex:1;min-width:0}
+  .sup-name-display{font-size:14px;font-weight:700;color:var(--text)}
+  .sup-name-count{font-size:11px;color:#aaa;margin-top:2px}
+  .sup-name-input{display:none;width:100%;padding:7px 11px;border:1.5px solid var(--blue);
+    border-radius:8px;font-size:14px;font-family:'Barlow',sans-serif;font-weight:700;outline:none;background:#fff}
+  .sup-actions{display:flex;gap:6px;flex-shrink:0}
+  .sup-actions button{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;
+    cursor:pointer;font-family:'Barlow',sans-serif;border:none;transition:all .15s;white-space:nowrap}
+  .btn-se{background:var(--blue-light);color:var(--blue)} .btn-se:hover{background:var(--blue);color:#fff}
+  .btn-ss{background:#28a745;color:#fff;display:none}
+  .btn-sc{background:#f0f2f7;color:#666;display:none}
+  .btn-sd{background:var(--red-bg);color:var(--red)} .btn-sd:hover{background:#dc3545;color:#fff}
+  .sup-empty{padding:40px;text-align:center;color:#bbb;font-size:14px}
+  .sup-info-box{margin:20px 26px;padding:14px 18px;background:#fffbea;border:1px solid #ffe082;
+    border-radius:10px;font-size:13px;color:#5a4a00;line-height:1.6}
+  .sup-info-box strong{font-weight:800}
+
+  /* MODAL */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.6);z-index:500;
+    align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;
+    box-shadow:0 32px 80px rgba(0,0,0,.35);animation:fadeUp .25s ease both}
+  .modal-header{padding:24px 28px 18px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:flex-start}
+  .modal-id{font-size:12px;color:#aaa;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+  .modal-name{font-size:20px;font-weight:900;color:var(--blue-dark);margin-bottom:8px}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#bbb;padding:4px 8px;line-height:1;border-radius:6px;transition:all .15s}
+  .modal-close:hover{background:#f5f5f5;color:#555}
+  .modal-fields{display:grid;grid-template-columns:1fr 1fr;padding:16px 28px;gap:0}
+  .mf{padding:10px 0;border-bottom:1px solid #f5f6fa}
+  .mf:nth-child(odd){padding-right:16px}
+  .mf:nth-child(even){padding-left:16px;border-left:1px solid #f5f6fa}
+  .mf-label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+  .mf-value{font-size:14px;color:#222;font-weight:600}
+  .modal-obs{padding:14px 28px}
+  .modal-obs label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px}
+  .modal-obs textarea{width:100%;padding:10px 13px;border:1.5px solid var(--gray-border);border-radius:9px;
+    font-size:13px;font-family:'Barlow',sans-serif;resize:vertical;outline:none;transition:border .2s}
+  .modal-obs textarea:focus{border-color:var(--blue)}
+  .modal-obs-view{padding:0 28px 16px;font-size:13px;color:#555}
+  .modal-obs-view strong{color:#888;font-weight:700}
+  .modal-actions{padding:16px 28px 24px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
+  .btn-recusar{padding:11px 24px;background:var(--red-bg);color:var(--red);border:1.5px solid #f5c6cb;
+    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-recusar:hover{background:#dc3545;color:#fff;border-color:#dc3545}
+  .btn-validar{padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:10px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-validar:hover{background:var(--blue-dark)}
+
+  /* TOAST */
+  #toast{position:fixed;top:22px;right:22px;padding:13px 22px;border-radius:11px;color:#fff;
+    font-weight:700;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;display:none}
+
+  @media(max-width:900px){
+    .stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}
+    .app-main{padding:18px 16px} .app-header,.nav-tabs{padding-left:16px;padding-right:16px}
+  }
+  @media(max-width:600px){
+    .stats-row{grid-template-columns:1fr 1fr} .form-grid{grid-template-columns:1fr}
+    .modal-fields{grid-template-columns:1fr} .mf:nth-child(even){border-left:none;padding-left:0}
+    .login-card{padding:36px 22px 28px;width:98vw}
+    thead th:nth-child(3),thead th:nth-child(4),tbody td:nth-child(3),tbody td:nth-child(4){display:none}
+    .sup-actions button span{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-ms"><span class="m">M</span><span class="dot">.</span><span class="s">S</span></div>
+      <div class="login-brand">Segurança e Serviços</div>
+    </div>
+    <div class="login-title">Gestão de Atestados</div>
+    <div class="login-sub">Selecione seu perfil de acesso</div>
+    <button class="login-btn rh" onclick="doLogin('rh')">
+      <span class="btn-icon">🗂️</span>
+      <div><div class="btn-label">Recursos Humanos</div><div class="btn-desc">Registrar, validar e configurar</div></div>
+    </button>
+    <button class="login-btn sup" onclick="doLogin('supervisor')">
+      <span class="btn-icon">👁️</span>
+      <div><div class="btn-label">Supervisor</div><div class="btn-desc">Consultar atestados validados</div></div>
+    </button>
+    <div class="login-footer">Sistema interno · M.S Segurança e Serviços</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="app-header">
+    <div class="hdr-logo">
+      <div class="hdr-ms"><span class="m">M</span><span class="dot">.</span><span class="s">S</span></div>
+      <div class="hdr-divider"></div>
+      <div><div class="hdr-title">Gestão de Atestados</div><div class="hdr-sub">Segurança e Serviços</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-role" id="roleLabel"></div>
+      <button class="hdr-btn" onclick="doLogout()">Sair →</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs" id="navTabs" style="display:none">
+    <button class="nav-tab active" id="tab-atestados"    onclick="switchTab('atestados')">📋 Atestados</button>
+    <button class="nav-tab"        id="tab-supervisores" onclick="switchTab('supervisores')">👤 Gerenciar Supervisores</button>
+  </div>
+
+  <main class="app-main">
+
+    <!-- ATESTADOS -->
+    <div id="atestadosPanel">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍  Buscar por nome ou matrícula…" oninput="renderTable()">
+        <select id="filterStatus" onchange="renderTable()">
+          <option value="">Todos os status</option>
+          <option value="Validado">Validado</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Recusado">Recusado</option>
+        </select>
+        <select id="filterSup" onchange="renderTable()"><option value="">Todos os supervisores</option></select>
+        <button class="btn-add" id="btnAdd" onclick="toggleForm()">+ Novo Atestado</button>
+      </div>
+
+      <div class="form-card" id="formCard" style="display:none">
+        <div class="form-head">📄 Registrar Novo Atestado</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Funcionário *</label><input id="f_funcionario" placeholder="Nome completo"></div>
+          <div class="form-field"><label>Matrícula *</label><input id="f_matricula" placeholder="MS-0000"></div>
+          <div class="form-field"><label>Setor</label>
+            <select id="f_setor"><option value="">Selecionar…</option>
+              <option>Vigilância</option><option>Limpeza</option><option>Portaria</option>
+              <option>Recepção</option><option>Manutenção</option><option>Administrativo</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Supervisor</label><select id="f_supervisor"><option value="">Selecionar…</option></select></div>
+          <div class="form-field"><label>Data de Entrega *</label><input id="f_dataEntrega" type="date"></div>
+          <div class="form-field"><label>Início do Afastamento *</label><input id="f_dataInicio" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Fim do Afastamento *</label><input id="f_dataFim" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Dias de Afastamento</label><input id="f_dias" readonly style="background:#f0f2f7;cursor:not-allowed"></div>
+          <div class="form-field"><label>CID</label><input id="f_cid" placeholder="Ex: J11"></div>
+          <div class="form-field"><label>Médico Responsável</label><input id="f_medico"></div>
+          <div class="form-field"><label>CRM</label><input id="f_crm" placeholder="00000-UF"></div>
+          <div class="form-field"><label>Hospital / Clínica</label><input id="f_hospital"></div>
+        </div>
+        <div class="form-obs">
+          <label>Observações</label>
+          <textarea id="f_obs" rows="3" placeholder="Observações adicionais…"></textarea>
+        </div>
+        <div class="form-footer">
+          <button class="btn-cancel2" onclick="toggleForm()">Cancelar</button>
+          <button class="btn-save" onclick="submitForm()">💾 Registrar Atestado</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title" id="tableTitle">Atestados Recebidos</span>
+          <span class="table-count" id="tableCount">0 registro(s)</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th>
+              <th>Período</th><th style="text-align:center">Dias</th><th>Status</th><th>Ação</th>
+            </tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display:none"><span>📂</span>Nenhum atestado encontrado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPERVISORES -->
+    <div id="supPanel">
+      <div class="sup-card">
+        <div class="sup-head">
+          <div>
+            <div class="sup-head-title">👤 Gerenciar Supervisores</div>
+            <div class="sup-head-sub">Adicione, edite ou remova supervisores. Alterações refletem em todos os atestados.</div>
+          </div>
+          <span class="table-count" id="supCount">0</span>
+        </div>
+        <div class="sup-info-box">
+          💡 <strong>Dica:</strong> Ao renomear um supervisor, todos os atestados vinculados a ele serão atualizados automaticamente. Para excluir, o supervisor pode ter atestados vinculados — você será avisado antes.
+        </div>
+        <div class="sup-add-row">
+          <input type="text" id="newSupName" placeholder="Nome do novo supervisor…" onkeydown="if(event.key==='Enter')addSupervisor()">
+          <button class="btn-sup-add" onclick="addSupervisor()">+ Adicionar Supervisor</button>
+        </div>
+        <ul class="sup-list" id="supList"></ul>
+        <div id="supEmpty" class="sup-empty" style="display:none">Nenhum supervisor cadastrado.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-id"   id="mId"></div>
+        <div class="modal-name" id="mName"></div>
+        <div id="mBadge"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-fields"   id="mFields"></div>
+    <div class="modal-obs"      id="mObsArea" style="display:none">
+      <label>Observações do RH</label>
+      <textarea id="mObs" rows="3" placeholder="Adicionar observação…"></textarea>
+    </div>
+    <div class="modal-obs-view" id="mObsView" style="display:none">
+      <strong>Obs. do RH: </strong><span id="mObsText"></span>
+    </div>
+    <div class="modal-actions"  id="mActions" style="display:none">
+      <button class="btn-recusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
+      <button class="btn-validar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STORAGE ──────────────────────────────────────────────
+const LS_AT='ms_atestados2', LS_SUP='ms_supervisores2';
+function save(){ try{localStorage.setItem(LS_AT,JSON.stringify(atestados));localStorage.setItem(LS_SUP,JSON.stringify(supervisores));}catch(e){} }
+function load(){ try{const a=localStorage.getItem(LS_AT),s=localStorage.getItem(LS_SUP);if(a)atestados=JSON.parse(a);if(s)supervisores=JSON.parse(s);}catch(e){} }
+
+// ── DATA ──────────────────────────────────────────────────
+let currentRole=null, currentId=null, formOpen=false, activeTab='atestados';
+
+let atestados=[
+  {id:1,funcionario:"Carlos Silva",   matricula:"MS-0042",setor:"Vigilância",supervisor:"João Mendes",     dataEntrega:"2026-04-10",dataInicio:"2026-04-08",dataFim:"2026-04-10",diasAfastamento:3, cid:"J11",medico:"Dr. Antônio Ramos",  crm:"12345-SP",hospital:"UBS Central",       status:"Validado", observacao:"Atestado original entregue."},
+  {id:2,funcionario:"Mariana Souza",  matricula:"MS-0087",setor:"Limpeza",   supervisor:"Ana Paula Costa",dataEntrega:"2026-04-15",dataInicio:"2026-04-14",dataFim:"2026-04-16",diasAfastamento:3, cid:"M54",medico:"Dra. Fernanda Lima", crm:"67890-SP",hospital:"Hospital São Lucas",status:"Pendente", observacao:""},
+  {id:3,funcionario:"Roberto Almeida",matricula:"MS-0031",setor:"Portaria",  supervisor:"Roberto Alves",  dataEntrega:"2026-04-18",dataInicio:"2026-04-17",dataFim:"2026-04-18",diasAfastamento:2, cid:"A09",medico:"Dr. Cláudio Neves",  crm:"11223-MG",hospital:"Clínica São José",  status:"Pendente", observacao:""},
+  {id:4,funcionario:"Patrícia Duarte",matricula:"MS-0058",setor:"Recepção",  supervisor:"Patrícia Nunes", dataEntrega:"2026-04-05",dataInicio:"2026-04-03",dataFim:"2026-04-05",diasAfastamento:3, cid:"F32",medico:"Dra. Ana Oliveira",  crm:"33445-RJ",hospital:"Hospital Municipal", status:"Recusado", observacao:"Documento sem assinatura."},
+];
+
+let supervisores=["João Mendes","Ana Paula Costa","Roberto Alves","Patrícia Nunes"];
+
+const SC={Validado:{cls:"validado",dot:"#28a745"},Pendente:{cls:"pendente",dot:"#ffc107"},Recusado:{cls:"recusado",dot:"#dc3545"}};
+
+load(); // load from localStorage on start
+
+// ── LOGIN ─────────────────────────────────────────────────
+function doLogin(r){
+  currentRole=r;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('roleLabel').textContent=r==='rh'?'🗂️ Recursos Humanos':'👁️ Supervisor';
+  document.getElementById('navTabs').style.display=r==='rh'?'flex':'none';
+  document.getElementById('btnAdd').style.display=r==='rh'?'inline-block':'none';
+  document.getElementById('tableTitle').textContent=r==='rh'?'Atestados Recebidos':'Atestados Validados';
+  switchTab('atestados');
+}
+function doLogout(){
+  currentRole=null;formOpen=false;activeTab='atestados';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('formCard').style.display='none';
+  ['searchInput','filterStatus','filterSup'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  document.getElementById('atestadosPanel').style.display=tab==='atestados'?'block':'none';
+  document.getElementById('supPanel').style.display=tab==='supervisores'?'block':'none';
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const el=document.getElementById('tab-'+tab); if(el)el.classList.add('active');
+  if(tab==='atestados'){populateFilterSup();renderStats();renderTable();}
+  else renderSupList();
+}
+
+// ── SUPERVISORES ──────────────────────────────────────────
+function renderSupList(){
+  const list=document.getElementById('supList'),empty=document.getElementById('supEmpty');
+  document.getElementById('supCount').textContent=`${supervisores.length} supervisor(es)`;
+  if(!supervisores.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=supervisores.map((s,i)=>{
+    const ini=s.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const ct=atestados.filter(a=>a.supervisor===s).length;
+    return `<li class="sup-item" id="si${i}">
+      <div class="sup-avatar">${ini}</div>
+      <div class="sup-name-wrap">
+        <div class="sup-name-display" id="sd${i}">${s}</div>
+        <div class="sup-name-count">${ct} atestado(s) vinculado(s)</div>
+        <input class="sup-name-input" id="si_in${i}" value="${s.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveSup(${i})">
+      </div>
+      <div class="sup-actions">
+        <button class="btn-se" id="se${i}" onclick="editSup(${i})">✏️ <span>Editar</span></button>
+        <button class="btn-ss" id="ss${i}" onclick="saveSup(${i})">✓ <span>Salvar</span></button>
+        <button class="btn-sc" id="sc${i}" onclick="cancelSup(${i})">✕</button>
+        <button class="btn-sd"              onclick="delSup(${i})">🗑️ <span>Remover</span></button>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+function addSupervisor(){
+  const inp=document.getElementById('newSupName'),name=inp.value.trim();
+  if(!name){showToast('Digite o nome do supervisor.','error');return;}
+  if(supervisores.some(s=>s.toLowerCase()===name.toLowerCase())){showToast('Supervisor já cadastrado.','error');return;}
+  supervisores.push(name);save();inp.value='';renderSupList();populateFormSup();populateFilterSup();
+  showToast(`Supervisor "${name}" adicionado!`);
+}
+
+function editSup(i){
+  document.getElementById(`sd${i}`).style.display='none';
+  document.getElementById(`si_in${i}`).style.display='block';
+  document.getElementById(`se${i}`).style.display='none';
+  document.getElementById(`ss${i}`).style.display='inline-block';
+  document.getElementById(`sc${i}`).style.display='inline-block';
+  document.getElementById(`si_in${i}`).focus();
+}
+function cancelSup(i){
+  document.getElementById(`si_in${i}`).value=supervisores[i];
+  document.getElementById(`sd${i}`).style.display='block';
+  document.getElementById(`si_in${i}`).style.display='none';
+  document.getElementById(`se${i}`).style.display='inline-block';
+  document.getElementById(`ss${i}`).style.display='none';
+  document.getElementById(`sc${i}`).style.display='none';
+}
+function saveSup(i){
+  const newName=document.getElementById(`si_in${i}`).value.trim();
+  if(!newName){showToast('Nome não pode ser vazio.','error');return;}
+  const oldName=supervisores[i];
+  if(newName===oldName){cancelSup(i);return;}
+  if(supervisores.some((s,j)=>j!==i&&s.toLowerCase()===newName.toLowerCase())){showToast('Já existe supervisor com esse nome.','error');return;}
+  atestados=atestados.map(a=>a.supervisor===oldName?{...a,supervisor:newName}:a);
+  supervisores[i]=newName;save();
+  renderSupList();populateFormSup();populateFilterSup();
+  showToast(`Supervisor renomeado para "${newName}"`);
+}
+function delSup(i){
+  const name=supervisores[i],ct=atestados.filter(a=>a.supervisor===name).length;
+  const msg=ct>0?`"${name}" tem ${ct} atestado(s) vinculado(s).\nDeseja remover mesmo assim?`:`Remover supervisor "${name}"?`;
+  if(!confirm(msg))return;
+  supervisores.splice(i,1);save();renderSupList();populateFormSup();populateFilterSup();
+  showToast('Supervisor removido.','error');
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function renderStats(){
+  const t=atestados.length,v=atestados.filter(a=>a.status==='Validado').length,
+        p=atestados.filter(a=>a.status==='Pendente').length,r=atestados.filter(a=>a.status==='Recusado').length;
+  document.getElementById('statsRow').innerHTML=[
+    {lbl:'Total',val:t,c:'#2B5BAD',icon:'📋'},{lbl:'Validados',val:v,c:'#28a745',icon:'✅'},
+    {lbl:'Pendentes',val:p,c:'#e6a800',icon:'⏳'},{lbl:'Recusados',val:r,c:'#dc3545',icon:'❌'},
+  ].map(i=>`<div class="stat-card" style="--c:${i.c}"><div class="stat-icon">${i.icon}</div><div><div class="stat-val">${i.val}</div><div class="stat-lbl">${i.lbl}</div></div></div>`).join('');
+}
+
+// ── TABLE ─────────────────────────────────────────────────
+function populateFilterSup(){
+  const sel=document.getElementById('filterSup'),cur=sel.value;
+  sel.innerHTML='<option value="">Todos os supervisores</option>'+supervisores.map(s=>`<option${s===cur?' selected':''}>${s}</option>`).join('');
+}
+function populateFormSup(){
+  const sel=document.getElementById('f_supervisor'),cur=sel.value;
+  sel.innerHTML='<option value="">Selecionar…</option>'+supervisores.map(s=>`<option${s===cur?' selected':''}>${s}</option>`).join('');
+}
+function renderTable(){
+  const search=document.getElementById('searchInput').value.toLowerCase(),
+        status=document.getElementById('filterStatus').value,
+        sup=document.getElementById('filterSup').value;
+  const fil=atestados.filter(a=>{
+    if(currentRole==='supervisor'&&a.status==='Pendente')return false;
+    if(status&&a.status!==status)return false;
+    if(sup&&a.supervisor!==sup)return false;
+    if(search&&!a.funcionario.toLowerCase().includes(search)&&!a.matricula.toLowerCase().includes(search))return false;
+    return true;
+  });
+  document.getElementById('tableCount').textContent=`${fil.length} registro(s)`;
+  const body=document.getElementById('tableBody'),empty=document.getElementById('emptyState');
+  if(!fil.length){body.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  body.innerHTML=fil.map((a,i)=>{
+    const sc=SC[a.status]||SC.Pendente,btn=(currentRole==='rh'&&a.status==='Pendente')?'✎ Analisar':'👁 Ver';
+    return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
+      <td class="td-name">${a.funcionario}</td>
+      <td><span class="td-mat">${a.matricula}</span></td>
+      <td>${a.setor}</td><td>${a.supervisor}</td>
+      <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
+      <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
+      <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
+      <td><button class="btn-view" onclick="openModal(${a.id})">${btn}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── FORM ──────────────────────────────────────────────────
+function toggleForm(){
+  formOpen=!formOpen;
+  const card=document.getElementById('formCard'),btn=document.getElementById('btnAdd');
+  card.style.display=formOpen?'block':'none';
+  btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado';
+  btn.classList.toggle('cancel',formOpen);
+  if(formOpen)populateFormSup(); else clearForm();
+}
+function clearForm(){
+  ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_setor').value='';document.getElementById('f_supervisor').value='';
+}
+function calcDias(){
+  const ini=document.getElementById('f_dataInicio').value,fim=document.getElementById('f_dataFim').value;
+  if(ini&&fim){const d=Math.round((new Date(fim)-new Date(ini))/86400000)+1;document.getElementById('f_dias').value=d>0?`${d} dia(s)`:'';}
+}
+function submitForm(){
+  const v=id=>document.getElementById(id).value.trim();
+  if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega')||!v('f_dataInicio')||!v('f_dataFim'))
+    {showToast('Preencha os campos obrigatórios (*)','error');return;}
+  const ini=v('f_dataInicio'),fim=v('f_dataFim'),dias=Math.round((new Date(fim)-new Date(ini))/86400000)+1;
+  atestados.unshift({id:Date.now(),funcionario:v('f_funcionario'),matricula:v('f_matricula'),setor:v('f_setor'),
+    supervisor:v('f_supervisor'),dataEntrega:v('f_dataEntrega'),dataInicio:ini,dataFim:fim,
+    diasAfastamento:dias>0?dias:1,cid:v('f_cid'),medico:v('f_medico'),crm:v('f_crm'),
+    hospital:v('f_hospital'),status:'Pendente',observacao:v('f_obs')});
+  save();toggleForm();populateFilterSup();renderStats();renderTable();
+  showToast('Atestado registrado com sucesso!');
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(id){
+  const a=atestados.find(x=>x.id===id);if(!a)return;currentId=id;
+  const sc=SC[a.status]||SC.Pendente;
+  document.getElementById('mId').textContent=`Atestado #${a.id}`;
+  document.getElementById('mName').textContent=a.funcionario;
+  document.getElementById('mBadge').innerHTML=`<span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span>`;
+  document.getElementById('mFields').innerHTML=[
+    ['Matrícula',a.matricula],['Setor',a.setor],['Supervisor',a.supervisor],['Data de Entrega',fmt(a.dataEntrega)],
+    ['Início do Afastamento',fmt(a.dataInicio)],['Fim do Afastamento',fmt(a.dataFim)],
+    ['Dias de Afastamento',`${a.diasAfastamento} dia(s)`],['CID',a.cid||'—'],
+    ['Médico',a.medico||'—'],['CRM',a.crm||'—'],
+  ].map(([l,v])=>`<div class="mf"><div class="mf-label">${l}</div><div class="mf-value">${v}</div></div>`).join('');
+  const oa=document.getElementById('mObsArea'),ov=document.getElementById('mObsView'),
+        ma=document.getElementById('mActions'),mo=document.getElementById('mObs');
+  oa.style.display=ov.style.display=ma.style.display='none';
+  if(currentRole==='rh'){oa.style.display='block';mo.value=a.observacao||'';if(a.status==='Pendente')ma.style.display='flex';}
+  else if(a.observacao){ov.style.display='block';document.getElementById('mObsText').textContent=a.observacao;}
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(e){if(!e||e.target===document.getElementById('overlay'))document.getElementById('overlay').classList.remove('open');}
+function validateAtestado(ns){
+  const obs=document.getElementById('mObs').value.trim();
+  atestados=atestados.map(a=>a.id===currentId?{...a,status:ns,observacao:obs||a.observacao}:a);
+  save();document.getElementById('overlay').classList.remove('open');renderStats();renderTable();
+  showToast(ns==='Validado'?'Atestado validado com sucesso!':'Atestado recusado.',ns==='Validado'?'success':'error');
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function fmt(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day}/${m}/${y}`;}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='error'?'⚠️ ':'✅ ')+msg;
+  t.style.background=type==='error'?'#dc3545':'#28a745';
+  t.style.display='block';t.style.animation='none';void t.offsetWidth;
+  t.style.animation='toastIn .3s ease both';
+  setTimeout(()=>{t.style.display='none';},3200);
+}
+</script>
+</body>
+</html>
