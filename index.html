@@ -6,89 +6,54 @@
 <title>M.S Segurança e Serviços – Gestão de Atestados</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --blue:#2B5BAD; --blue-dark:#1a3a75; --blue-light:#e8eef8; --blue-mid:#d0daf0;
-    --gray-light:#f0f2f7; --gray-border:#e0e4ec;
-    --green:#1e7e34; --green-bg:#e6f4ea;
-    --yellow:#856404; --yellow-bg:#fff8e1;
-    --red:#c62828; --red-bg:#fdecea;
-    --text:#1a2035;
-  }
-  ,::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--blue:#2B5BAD;--blue-dark:#1a3a75;--blue-light:#e8eef8;--blue-mid:#d0daf0;--gray-light:#f0f2f7;--gray-border:#e0e4ec;--green:#1e7e34;--green-bg:#e6f4ea;--yellow:#856404;--yellow-bg:#fff8e1;--red:#c62828;--red-bg:#fdecea;--text:#1a2035}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Barlow',sans-serif;background:var(--gray-light);color:var(--text);min-height:100vh}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  @keyframes fadeUp  {from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes slideIn {from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes toastIn {from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
-  @keyframes spin    {to{transform:rotate(360deg)}}
-
-  #configScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(140deg,#0e1f4a 0%,#1a3a75 40%,#2B5BAD 75%,#4a7fd4 100%);position:relative;overflow:hidden}
-  #configScreen::before{content:'';position:absolute;inset:0;
-    background:radial-gradient(ellipse 70% 60% at 80% 20%,rgba(255,255,255,.06) 0%,transparent 60%),
-               radial-gradient(ellipse 50% 40% at 10% 80%,rgba(255,255,255,.04) 0%,transparent 60%)}
-  .config-card{background:#fff;border-radius:20px;padding:44px 40px 36px;width:560px;max-width:98vw;
-    box-shadow:0 32px 80px rgba(0,0,0,.35);position:relative;z-index:1;animation:fadeUp .5s ease both}
-  .cfg-logo{text-align:center;margin-bottom:20px}
-  .cfg-ms{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:900;line-height:1;letter-spacing:-2px}
-  .cfg-ms .m,.cfg-ms .s{color:var(--blue)} .cfg-ms .dot{color:#9EA7B2}
-  .cfg-brand{font-size:9px;font-weight:700;letter-spacing:5px;color:#9EA7B2;text-transform:uppercase;margin-top:2px}
-  .cfg-title{font-size:18px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:4px}
-  .cfg-sub{font-size:13px;color:#999;text-align:center;margin-bottom:28px}
-  .cfg-info{background:#e8eef8;border-radius:10px;padding:14px 16px;margin-bottom:22px;font-size:12px;color:#1a3a75;line-height:1.7}
-  .cfg-info strong{font-weight:800}
-  .cfg-info a{color:var(--blue);font-weight:700}
-  .cfg-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-  .cfg-field label{display:block;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
-  .cfg-field input{width:100%;padding:9px 12px;border:1.5px solid var(--gray-border);border-radius:9px;
-    font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);outline:none;transition:border .2s;background:#fafbff}
-  .cfg-field input:focus{border-color:var(--blue);background:#fff}
-  .cfg-field.full{grid-column:1/-1}
-  .btn-connect{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;
-    font-weight:800;font-size:15px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;margin-top:8px}
-  .btn-connect:hover{background:var(--blue-dark)}
-  .cfg-footer{text-align:center;font-size:11px;color:#bbb;margin-top:20px}
-  .cfg-saved{display:none;text-align:center;padding:8px 0 0;font-size:12px;color:#28a745;font-weight:700}
-
-  #loadingOverlay{position:fixed;inset:0;background:rgba(14,31,74,.85);z-index:9999;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+  /* LOADING */
+  #loadingOverlay{position:fixed;inset:0;background:rgba(14,31,74,.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
   #loadingOverlay.hidden{display:none}
-  .spinner{width:52px;height:52px;border:5px solid rgba(255,255,255,.2);border-top-color:#fff;
-    border-radius:50%;animation:spin .8s linear infinite}
-  .loading-text{color:#fff;font-size:15px;font-weight:700;letter-spacing:.5px}
+  .spinner{width:56px;height:56px;border:5px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+  .loading-text{color:#fff;font-size:15px;font-weight:700;letter-spacing:.5px;text-align:center}
+  .loading-sub{color:rgba(255,255,255,.5);font-size:12px;margin-top:-10px}
 
+  /* LOGIN */
   #loginScreen{min-height:100vh;display:none;align-items:center;justify-content:center;
     background:linear-gradient(140deg,#0e1f4a 0%,#1a3a75 40%,#2B5BAD 75%,#4a7fd4 100%);position:relative;overflow:hidden}
   #loginScreen::before{content:'';position:absolute;inset:0;
     background:radial-gradient(ellipse 70% 60% at 80% 20%,rgba(255,255,255,.06) 0%,transparent 60%),
                radial-gradient(ellipse 50% 40% at 10% 80%,rgba(255,255,255,.04) 0%,transparent 60%)}
-  .login-card{background:#fff;border-radius:20px;padding:52px 44px 40px;width:440px;max-width:98vw;
+  .login-card{background:#fff;border-radius:20px;padding:52px 44px 40px;width:440px;max-width:96vw;
     box-shadow:0 32px 80px rgba(0,0,0,.35);position:relative;z-index:1;animation:fadeUp .5s ease both}
   .login-logo{text-align:center;margin-bottom:28px}
   .login-ms{font-family:'Barlow Condensed',sans-serif;font-size:72px;font-weight:900;line-height:1;letter-spacing:-2px}
-  .login-ms .m,.login-ms .s{color:var(--blue)} .login-ms .dot{color:#9EA7B2}
+  .login-ms .m,.login-ms .s{color:var(--blue)}.login-ms .dot{color:#9EA7B2}
   .login-brand{font-size:9px;font-weight:700;letter-spacing:5px;color:#9EA7B2;text-transform:uppercase;margin-top:2px}
   .login-title{font-size:22px;font-weight:800;color:var(--blue-dark);text-align:center;margin-bottom:4px}
   .login-sub{font-size:14px;color:#999;text-align:center;margin-bottom:36px}
   .login-btn{display:flex;align-items:center;gap:18px;width:100%;padding:20px 24px;border-radius:14px;
-    cursor:pointer;text-align:left;transition:all .2s;margin-bottom:12px;border:2px solid transparent}
+    cursor:pointer;text-align:left;transition:all .2s;margin-bottom:12px;border:2px solid transparent;background:none}
   .login-btn:last-of-type{margin-bottom:0}
   .login-btn.rh{background:var(--blue-light);border-color:var(--blue)}
   .login-btn.sup{background:#fafafa;border-color:#e0e0e0}
   .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(43,91,173,.18)}
-  .btn-icon{font-size:30px;flex-shrink:0} .btn-label{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .btn-icon{font-size:30px;flex-shrink:0}.btn-label{font-size:16px;font-weight:800;color:var(--blue-dark)}
   .btn-desc{font-size:12px;color:#888;margin-top:2px}
   .login-footer{text-align:center;font-size:11px;color:#bbb;margin-top:32px}
-  .login-cfg-link{text-align:center;margin-top:14px}
-  .login-cfg-link button{background:none;border:none;color:#aaa;font-size:11px;cursor:pointer;
-    font-family:'Barlow',sans-serif;text-decoration:underline}
+  .login-err{display:none;margin-top:16px;padding:12px 16px;background:#fdecea;border-radius:10px;
+    font-size:13px;color:#c62828;font-weight:600;text-align:center}
 
+  /* APP */
   #app{display:none;min-height:100vh;flex-direction:column}
   .app-header{background:#fff;height:66px;display:flex;align-items:center;justify-content:space-between;
     padding:0 32px;box-shadow:0 2px 14px rgba(0,0,0,.08);position:sticky;top:0;z-index:100;border-bottom:3px solid var(--blue)}
   .hdr-logo{display:flex;align-items:center;gap:14px}
   .hdr-ms{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1;letter-spacing:-1px}
-  .hdr-ms .m,.hdr-ms .s{color:var(--blue)} .hdr-ms .dot{color:#9EA7B2}
+  .hdr-ms .m,.hdr-ms .s{color:var(--blue)}.hdr-ms .dot{color:#9EA7B2}
   .hdr-divider{width:1px;height:32px;background:#e0e4ec}
   .hdr-title{font-size:15px;font-weight:800;color:var(--blue-dark);line-height:1.2}
   .hdr-sub{font-size:10px;font-weight:600;color:#999;letter-spacing:2px;text-transform:uppercase}
@@ -104,15 +69,14 @@
   .nav-tab{padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;
     border-bottom:3px solid transparent;color:#888;transition:all .2s;
     border:none;background:none;font-family:'Barlow',sans-serif;user-select:none}
-  .nav-tab:hover{color:var(--blue)}
-  .nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+  .nav-tab:hover{color:var(--blue)}.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
   .app-main{padding:28px 32px;max-width:1240px;width:100%;margin:0 auto}
 
   .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
   .stat-card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:0 2px 10px rgba(0,0,0,.06);
     border-top:4px solid var(--c);display:flex;align-items:center;gap:14px;animation:fadeUp .4s ease both}
-  .stat-icon{font-size:26px} .stat-val{font-size:30px;font-weight:900;color:var(--c);line-height:1}
+  .stat-icon{font-size:26px}.stat-val{font-size:30px;font-weight:900;color:var(--c);line-height:1}
   .stat-lbl{font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
 
   .toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
@@ -122,8 +86,7 @@
   .toolbar input:focus,.toolbar select:focus{border-color:var(--blue)}
   .btn-add{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;
     font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
-  .btn-add:hover{background:var(--blue-dark);transform:translateY(-1px)}
-  .btn-add.cancel{background:#dc3545}
+  .btn-add:hover{background:var(--blue-dark);transform:translateY(-1px)}.btn-add.cancel{background:#dc3545}
 
   .form-card{background:#fff;border-radius:16px;margin-bottom:24px;
     box-shadow:0 6px 24px rgba(43,91,173,.13);border:1.5px solid var(--blue-mid);
@@ -157,7 +120,7 @@
   thead th{padding:11px 16px;text-align:left;font-size:10px;font-weight:800;color:#999;
     text-transform:uppercase;letter-spacing:.6px;background:#f8f9fb;border-bottom:1px solid #eef0f5;white-space:nowrap}
   tbody td{padding:13px 16px;font-size:13px;color:#333;border-bottom:1px solid #f0f2f5;vertical-align:middle}
-  tbody tr:last-child td{border-bottom:none} tbody tr:hover td{background:#f5f8ff}
+  tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:#f5f8ff}
   .td-name{font-weight:700;color:var(--text)}
   .td-mat{background:var(--blue-light);color:var(--blue);padding:2px 9px;border-radius:5px;font-size:11px;font-family:monospace;font-weight:700}
   .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
@@ -171,6 +134,7 @@
   .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
   .empty-state span{font-size:40px;display:block;margin-bottom:12px}
 
+  /* SUPERVISORES */
   #supPanel{display:none;animation:fadeUp .3s ease both}
   .sup-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden}
   .sup-head{padding:20px 26px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:center}
@@ -185,7 +149,7 @@
   .btn-sup-add:hover{background:var(--blue-dark)}
   .sup-list{list-style:none}
   .sup-item{display:flex;align-items:center;gap:14px;padding:14px 26px;border-bottom:1px solid #f0f2f5;transition:background .15s}
-  .sup-item:last-child{border-bottom:none} .sup-item:hover{background:#f8f9fb}
+  .sup-item:last-child{border-bottom:none}.sup-item:hover{background:#f8f9fb}
   .sup-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
   .sup-name-wrap{flex:1;min-width:0}
@@ -196,15 +160,15 @@
   .sup-actions{display:flex;gap:6px;flex-shrink:0}
   .sup-actions button{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;
     cursor:pointer;font-family:'Barlow',sans-serif;border:none;transition:all .15s;white-space:nowrap}
-  .btn-se{background:var(--blue-light);color:var(--blue)} .btn-se:hover{background:var(--blue);color:#fff}
+  .btn-se{background:var(--blue-light);color:var(--blue)}.btn-se:hover{background:var(--blue);color:#fff}
   .btn-ss{background:#28a745;color:#fff;display:none}
   .btn-sc{background:#f0f2f7;color:#666;display:none}
-  .btn-sd{background:var(--red-bg);color:var(--red)} .btn-sd:hover{background:#dc3545;color:#fff}
+  .btn-sd{background:var(--red-bg);color:var(--red)}.btn-sd:hover{background:#dc3545;color:#fff}
   .sup-empty{padding:40px;text-align:center;color:#bbb;font-size:14px}
   .sup-info-box{margin:20px 26px;padding:14px 18px;background:#fffbea;border:1px solid #ffe082;
     border-radius:10px;font-size:13px;color:#5a4a00;line-height:1.6}
-  .sup-info-box strong{font-weight:800}
 
+  /* MODAL */
   .overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.6);z-index:500;
     align-items:center;justify-content:center;padding:20px}
   .overlay.open{display:flex}
@@ -236,59 +200,29 @@
     font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
   .btn-validar:hover{background:var(--blue-dark)}
 
+  /* TOAST */
   #toast{position:fixed;top:22px;right:22px;padding:13px 22px;border-radius:11px;color:#fff;
     font-weight:700;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;display:none}
 
-  @media(max-width:900px){
-    .stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}
-    .app-main{padding:18px 16px} .app-header,.nav-tabs{padding-left:16px;padding-right:16px}
-  }
+  @media(max-width:900px){.stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}.app-main{padding:18px 16px}.app-header,.nav-tabs{padding-left:16px;padding-right:16px}}
   @media(max-width:600px){
-    .stats-row{grid-template-columns:1fr 1fr} .form-grid{grid-template-columns:1fr}
-    .modal-fields{grid-template-columns:1fr} .mf:nth-child(even){border-left:none;padding-left:0}
-    .login-card{padding:36px 22px 28px;width:98vw} .config-card{padding:28px 18px 24px}
-    .cfg-fields{grid-template-columns:1fr}
+    .stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}
+    .modal-fields{grid-template-columns:1fr}.mf:nth-child(even){border-left:none;padding-left:0}
+    .login-card{padding:36px 22px 28px;width:98vw}
     thead th:nth-child(3),thead th:nth-child(4),tbody td:nth-child(3),tbody td:nth-child(4){display:none}
-    .sup-actions button span{display:none}
   }
 </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text">Conectando ao Firebase…</div>
+  <div class="loading-text" id="loadingText">Conectando ao Firebase…</div>
+  <div class="loading-sub" id="loadingSub">Aguarde</div>
 </div>
 
-<div id="configScreen" style="display:none">
-  <div class="config-card">
-    <div class="cfg-logo">
-      <div class="cfg-ms"><span class="m">M</span><span class="dot">.</span><span class="s">S</span></div>
-      <div class="cfg-brand">Segurança e Serviços</div>
-    </div>
-    <div class="cfg-title">Configurar Firebase</div>
-    <div class="cfg-sub">Banco de dados em nuvem compartilhado</div>
-    <div class="cfg-info">
-      <strong>Como obter suas credenciais:</strong><br>
-      1. Acesse <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>
-      2. Crie um projeto → Adicionar app Web → Copie o <em>firebaseConfig</em><br>
-      3. No menu Firestore Database → Criar banco → Modo de teste<br>
-      4. Cole os valores abaixo e clique em Conectar
-    </div>
-    <div class="cfg-fields">
-      <div class="cfg-field full"><label>API Key</label><input id="cfg_apiKey" placeholder="AIzaSy…"></div>
-      <div class="cfg-field full"><label>Auth Domain</label><input id="cfg_authDomain" placeholder="meu-projeto.firebaseapp.com"></div>
-      <div class="cfg-field full"><label>Project ID</label><input id="cfg_projectId" placeholder="meu-projeto"></div>
-      <div class="cfg-field"><label>Storage Bucket</label><input id="cfg_storageBucket" placeholder="meu-projeto.appspot.com"></div>
-      <div class="cfg-field"><label>Messaging Sender ID</label><input id="cfg_messagingSenderId" placeholder="123456789"></div>
-      <div class="cfg-field full"><label>App ID</label><input id="cfg_appId" placeholder="1:123…:web:abc…"></div>
-    </div>
-    <button class="btn-connect" onclick="connectFirebase()">🔌 Conectar ao Firebase</button>
-    <div class="cfg-saved" id="cfgSaved">✅ Configuração salva localmente</div>
-    <div class="cfg-footer">Sistema interno · M.S Segurança e Serviços</div>
-  </div>
-</div>
-
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
@@ -305,11 +239,12 @@
       <span class="btn-icon">👁️</span>
       <div><div class="btn-label">Supervisor</div><div class="btn-desc">Consultar atestados validados</div></div>
     </button>
-    <div class="login-cfg-link"><button onclick="showConfig()">⚙️ Reconfigurar Firebase</button></div>
+    <div class="login-err" id="loginErr"></div>
     <div class="login-footer">Sistema interno · M.S Segurança e Serviços</div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <header class="app-header">
     <div class="hdr-logo">
@@ -318,15 +253,15 @@
       <div><div class="hdr-title">Gestão de Atestados</div><div class="hdr-sub">Segurança e Serviços</div></div>
     </div>
     <div class="hdr-right">
-      <div class="hdr-sync" id="syncDot" title="Sincronizado com Firebase"></div>
+      <div class="hdr-sync" id="syncDot" title="Sincronizado"></div>
       <div class="hdr-role" id="roleLabel"></div>
       <button class="hdr-btn" onclick="doLogout()">Sair →</button>
     </div>
   </header>
 
   <div class="nav-tabs" id="navTabs" style="display:none">
-    <button class="nav-tab active" id="tab-atestados"    onclick="switchTab('atestados')">📋 Atestados</button>
-    <button class="nav-tab"        id="tab-supervisores" onclick="switchTab('supervisores')">👤 Gerenciar Supervisores</button>
+    <button class="nav-tab active" id="tab-atestados" onclick="switchTab('atestados')">📋 Atestados</button>
+    <button class="nav-tab" id="tab-supervisores" onclick="switchTab('supervisores')">👤 Gerenciar Supervisores</button>
   </div>
 
   <main class="app-main">
@@ -382,7 +317,10 @@
         </div>
         <div class="tbl-wrap">
           <table>
-            <thead><tr><th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th><th>Período</th><th style="text-align:center">Dias</th><th>Status</th><th>Ação</th></tr></thead>
+            <thead><tr>
+              <th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th>
+              <th>Período</th><th style="text-align:center">Dias</th><th>Status</th><th>Ação</th>
+            </tr></thead>
             <tbody id="tableBody"></tbody>
           </table>
           <div id="emptyState" class="empty-state" style="display:none"><span>📂</span>Nenhum atestado encontrado.</div>
@@ -393,13 +331,14 @@
     <div id="supPanel">
       <div class="sup-card">
         <div class="sup-head">
-          <div><div class="sup-head-title">👤 Gerenciar Supervisores</div><div class="sup-head-sub">Adicione, edite ou remova supervisores. Alterações refletem em todos os atestados.</div></div>
+          <div><div class="sup-head-title">👤 Gerenciar Supervisores</div>
+          <div class="sup-head-sub">Adicione, edite ou remova supervisores.</div></div>
           <span class="table-count" id="supCount">0</span>
         </div>
-        <div class="sup-info-box">💡 <strong>Dica:</strong> Ao renomear um supervisor, todos os atestados vinculados a ele serão atualizados automaticamente. Para excluir, o supervisor pode ter atestados vinculados — você será avisado antes.</div>
+        <div class="sup-info-box">💡 <strong>Dica:</strong> Ao renomear um supervisor, todos os atestados vinculados serão atualizados automaticamente.</div>
         <div class="sup-add-row">
           <input type="text" id="newSupName" placeholder="Nome do novo supervisor…" onkeydown="if(event.key==='Enter')addSupervisor()">
-          <button class="btn-sup-add" onclick="addSupervisor()">+ Adicionar Supervisor</button>
+          <button class="btn-sup-add" onclick="addSupervisor()">+ Adicionar</button>
         </div>
         <ul class="sup-list" id="supList"></ul>
         <div id="supEmpty" class="sup-empty" style="display:none">Nenhum supervisor cadastrado.</div>
@@ -408,133 +347,374 @@
   </main>
 </div>
 
+<!-- MODAL -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header"><div><div class="modal-id" id="mId"></div><div class="modal-name" id="mName"></div><div id="mBadge"></div></div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-header">
+      <div><div class="modal-id" id="mId"></div><div class="modal-name" id="mName"></div><div id="mBadge"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
     <div class="modal-fields" id="mFields"></div>
-    <div class="modal-obs" id="mObsArea" style="display:none"><label>Observações do RH</label><textarea id="mObs" rows="3" placeholder="Adicionar observação…"></textarea></div>
-    <div class="modal-obs-view" id="mObsView" style="display:none"><strong>Obs. do RH: </strong><span id="mObsText"></span></div>
-    <div class="modal-actions" id="mActions" style="display:none"><button class="btn-recusar" onclick="validateAtestado('Recusado')">✕ Recusar</button><button class="btn-validar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button></div>
+    <div class="modal-obs" id="mObsArea" style="display:none">
+      <label>Observações do RH</label>
+      <textarea id="mObs" rows="3" placeholder="Adicionar observação…"></textarea>
+    </div>
+    <div class="modal-obs-view" id="mObsView" style="display:none">
+      <strong>Obs. do RH: </strong><span id="mObsText"></span>
+    </div>
+    <div class="modal-actions" id="mActions" style="display:none">
+      <button class="btn-recusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
+      <button class="btn-validar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<!-- Firebase SDK via CDN -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
-const LS_CFG = 'ms_firebase_cfg';
+// ══════════════════════════════════════════════════
+//  CONFIGURAÇÃO FIREBASE — credenciais do seu projeto
+// ══════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCL4zpu2yN8_TeY28lwOZ0akUy7peLLUVg",
+  authDomain:        "gerenciador-de-atestados.firebaseapp.com",
+  projectId:         "gerenciador-de-atestados",
+  storageBucket:     "gerenciador-de-atestados.appspot.com",
+  messagingSenderId: "452439292732",
+  appId:             "1:452439292732:web:3bbabf79b2ed1888643c39"
+};
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
 let db = null;
-let unsubAtestados = null;
-let unsubSupervisores = null;
 let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestados';
-let atestados = [];
-let supervisores = [];
+let atestados = [], supervisores = [];
+let unsubAtestados = null, unsubSupervisores = null;
+const SC = {
+  Validado:{cls:'validado',dot:'#28a745'},
+  Pendente:{cls:'pendente',dot:'#ffc107'},
+  Recusado:{cls:'recusado',dot:'#dc3545'}
+};
 
-const SC = { Validado:{cls:'validado',dot:'#28a745'}, Pendente:{cls:'pendente',dot:'#ffc107'}, Recusado:{cls:'recusado',dot:'#dc3545'} };
-
-function loadSavedConfig(){ try{ return JSON.parse(localStorage.getItem(LS_CFG)); }catch(e){ return null; } }
-function saveConfig(cfg){ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }
-
-async function connectFirebase(cfg){
-  const isManual = !cfg;
-  if(isManual){
-    cfg = {
-      apiKey: document.getElementById('cfg_apiKey').value.trim(),
-      authDomain: document.getElementById('cfg_authDomain').value.trim(),
-      projectId: document.getElementById('cfg_projectId').value.trim(),
-      storageBucket: document.getElementById('cfg_storageBucket').value.trim(),
-      messagingSenderId: document.getElementById('cfg_messagingSenderId').value.trim(),
-      appId: document.getElementById('cfg_appId').value.trim(),
-    };
-    if(!cfg.apiKey || !cfg.projectId){ showToast('Preencha ao menos API Key e Project ID.','error'); return; }
-  }
-  showLoading('Conectando ao Firebase…');
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  setLoading('Conectando ao Firebase…', 'Banco de dados em nuvem');
   try {
-    if(firebase.apps.length){ await firebase.app().delete(); }
-    firebase.initializeApp(cfg);
+    firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
     await db.collection('supervisores').limit(1).get();
-    saveConfig(cfg);
-    if(isManual){ document.getElementById('cfgSaved').style.display='block'; }
     hideLoading();
     showLoginScreen();
-    startRealtimeListeners();
-  } catch(err){
+    startListeners();
+  } catch(err) {
     hideLoading();
-    showToast('Erro ao conectar: ' + err.message,'error');
-    if(!isManual){ showConfigScreen(); }
-  }
-}
-
-window.addEventListener('DOMContentLoaded', async ()=>{
-  showLoading('Iniciando sistema…');
-  const saved = loadSavedConfig();
-  if(saved && saved.apiKey){
-    await connectFirebase(saved);
-  } else {
-    hideLoading();
-    showConfigScreen();
+    showLoginErr('Erro de conexão: ' + err.message + '. Verifique sua internet.');
+    showLoginScreen();
   }
 });
 
-function startRealtimeListeners(){
+function startListeners() {
   if(unsubAtestados) unsubAtestados();
-  unsubAtestados = db.collection('atestados').orderBy('createdAt','desc').onSnapshot(snap => {
-    atestados = snap.docs.map(d=>({...d.data(), _docId: d.id}));
-    setSyncStatus(true);
-    if(currentRole) { populateFilterSup(); renderStats(); renderTable(); }
-  }, err => { setSyncStatus(false); showToast('Erro de sincronização: '+err.message,'error'); });
+  unsubAtestados = db.collection('atestados')
+    .orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      atestados = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+      setSyncStatus(true);
+      if(currentRole){ populateFilterSup(); renderStats(); renderTable(); }
+    }, () => setSyncStatus(false));
+
   if(unsubSupervisores) unsubSupervisores();
-  unsubSupervisores = db.collection('supervisores').orderBy('nome','asc').onSnapshot(snap => {
-    supervisores = snap.docs.map(d=>({...d.data(), _docId: d.id}));
-    setSyncStatus(true);
-    if(currentRole==='rh' && activeTab==='supervisores') renderSupList();
-    populateFilterSup();
-    populateFormSup();
-  }, err => { setSyncStatus(false); });
+  unsubSupervisores = db.collection('supervisores')
+    .orderBy('nome','asc')
+    .onSnapshot(snap => {
+      supervisores = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+      setSyncStatus(true);
+      if(currentRole === 'rh' && activeTab === 'supervisores') renderSupList();
+      populateFilterSup(); populateFormSup();
+    }, () => setSyncStatus(false));
 }
 
-function showLoading(msg=''){ document.getElementById('loadingOverlay').classList.remove('hidden'); document.querySelector('.loading-text').textContent = msg||'Aguarde…'; }
+// ══════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════
+function setLoading(msg, sub=''){
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingSub').textContent = sub;
+}
 function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); }
-function showConfigScreen(){ document.getElementById('configScreen').style.display='flex'; document.getElementById('loginScreen').style.display='none'; document.getElementById('app').style.display='none'; }
-function showLoginScreen(){ document.getElementById('configScreen').style.display='none'; document.getElementById('loginScreen').style.display='flex'; document.getElementById('app').style.display='none'; }
-function showConfig(){ const cfg = loadSavedConfig()||{}; ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{ const el=document.getElementById('cfg_'+k); if(el) el.value=cfg[k]||''; }); showConfigScreen(); }
-function setSyncStatus(ok){ const dot = document.getElementById('syncDot'); if(dot){ dot.classList.toggle('off',!ok); dot.title = ok?'🟢 Sincronizado com Firebase':'🔴 Sem conexão'; } }
+function showLoginScreen(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+function showLoginErr(msg){
+  const el = document.getElementById('loginErr');
+  el.textContent = '⚠️ ' + msg; el.style.display = 'block';
+}
+function setSyncStatus(ok){
+  const d = document.getElementById('syncDot');
+  if(d){ d.classList.toggle('off',!ok); d.title = ok ? '🟢 Sincronizado' : '🔴 Sem conexão'; }
+}
 
 function doLogin(r){
   currentRole = r;
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('app').style.display='flex';
-  document.getElementById('roleLabel').textContent = r==='rh'?'🗂️ Recursos Humanos':'👁️ Supervisor';
-  document.getElementById('navTabs').style.display = r==='rh'?'flex':'none';
-  document.getElementById('btnAdd').style.display = r==='rh'?'inline-block':'none';
-  document.getElementById('tableTitle').textContent = r==='rh'?'Atestados Recebidos':'Atestados Validados';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('roleLabel').textContent = r==='rh' ? '🗂️ Recursos Humanos' : '👁️ Supervisor';
+  document.getElementById('navTabs').style.display = r==='rh' ? 'flex' : 'none';
+  document.getElementById('btnAdd').style.display = r==='rh' ? 'inline-block' : 'none';
+  document.getElementById('tableTitle').textContent = r==='rh' ? 'Atestados Recebidos' : 'Atestados Validados';
   switchTab('atestados');
 }
-function doLogout(){ currentRole=null; formOpen=false; activeTab='atestados'; document.getElementById('loginScreen').style.display='flex'; document.getElementById('app').style.display='none'; document.getElementById('formCard').style.display='none'; ['searchInput','filterStatus','filterSup'].forEach(id=>document.getElementById(id).value=''); }
-function switchTab(tab){ activeTab=tab; document.getElementById('atestadosPanel').style.display = tab==='atestados'?'block':'none'; document.getElementById('supPanel').style.display = tab==='supervisores'?'block':'none'; document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); const el=document.getElementById('tab-'+tab); if(el) el.classList.add('active'); if(tab==='atestados'){ populateFilterSup(); renderStats(); renderTable(); } else renderSupList(); }
-function renderStats(){ const t=atestados.length, v=atestados.filter(a=>a.status==='Validado').length, p=atestados.filter(a=>a.status==='Pendente').length, r=atestados.filter(a=>a.status==='Recusado').length; document.getElementById('statsRow').innerHTML=[{lbl:'Total',val:t,c:'#2B5BAD',icon:'📋'},{lbl:'Validados',val:v,c:'#28a745',icon:'✅'},{lbl:'Pendentes',val:p,c:'#e6a800',icon:'⏳'},{lbl:'Recusados',val:r,c:'#dc3545',icon:'❌'}].map(i=><div class="stat-card" style="--c:${i.c}"><div class="stat-icon">${i.icon}</div><div><div class="stat-val">${i.val}</div><div class="stat-lbl">${i.lbl}</div></div></div>).join(''); }
+function doLogout(){
+  currentRole = null; formOpen = false; activeTab = 'atestados';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('formCard').style.display = 'none';
+  ['searchInput','filterStatus','filterSup'].forEach(id => document.getElementById(id).value='');
+}
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('atestadosPanel').style.display = tab==='atestados' ? 'block' : 'none';
+  document.getElementById('supPanel').style.display = tab==='supervisores' ? 'block' : 'none';
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-'+tab); if(el) el.classList.add('active');
+  if(tab==='atestados'){ populateFilterSup(); renderStats(); renderTable(); }
+  else renderSupList();
+}
+
+// ══════════════════════════════════════════════════
+//  STATS & TABLE
+// ══════════════════════════════════════════════════
+function renderStats(){
+  const t=atestados.length, v=atestados.filter(a=>a.status==='Validado').length,
+        p=atestados.filter(a=>a.status==='Pendente').length, r=atestados.filter(a=>a.status==='Recusado').length;
+  document.getElementById('statsRow').innerHTML=[
+    {lbl:'Total',val:t,c:'#2B5BAD',icon:'📋'},
+    {lbl:'Validados',val:v,c:'#28a745',icon:'✅'},
+    {lbl:'Pendentes',val:p,c:'#e6a800',icon:'⏳'},
+    {lbl:'Recusados',val:r,c:'#dc3545',icon:'❌'},
+  ].map(i=>`<div class="stat-card" style="--c:${i.c}"><div class="stat-icon">${i.icon}</div><div><div class="stat-val">${i.val}</div><div class="stat-lbl">${i.lbl}</div></div></div>`).join('');
+}
 function supNames(){ return supervisores.map(s=>s.nome||s); }
-function populateFilterSup(){ const sel=document.getElementById('filterSup'), cur=sel.value; sel.innerHTML='<option value="">Todos os supervisores</option>'+supNames().map(n=><option${n===cur?' selected':''}>${n}</option>).join(''); }
-function populateFormSup(){ const sel=document.getElementById('f_supervisor'), cur=sel.value; sel.innerHTML='<option value="">Selecionar…</option>'+supNames().map(n=><option${n===cur?' selected':''}>${n}</option>).join(''); }
-function renderTable(){ const search=document.getElementById('searchInput').value.toLowerCase(), status=document.getElementById('filterStatus').value, sup=document.getElementById('filterSup').value; const fil=atestados.filter(a=>{ if(currentRole==='supervisor' && a.status==='Pendente') return false; if(status && a.status!==status) return false; if(sup && a.supervisor!==sup) return false; if(search && !a.funcionario.toLowerCase().includes(search) && !a.matricula.toLowerCase().includes(search)) return false; return true; }); document.getElementById('tableCount').textContent=${fil.length} registro(s); const body=document.getElementById('tableBody'), empty=document.getElementById('emptyState'); if(!fil.length){ body.innerHTML=''; empty.style.display='block'; return; } empty.style.display='none'; body.innerHTML=fil.map((a,i)=>{ const sc=SC[a.status]||SC.Pendente; const btn=(currentRole==='rh' && a.status==='Pendente')?'✎ Analisar':'👁 Ver'; return <tr style="background:${i%2===0?'#fff':'#f9fafb'}"><td class="td-name">${a.funcionario}</td><td><span class="td-mat">${a.matricula}</span></td><td>${a.setor||'—'}</td><td>${a.supervisor||'—'}</td><td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td><td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td><td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td><td><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button></td></tr>; }).join(''); }
-function toggleForm(){ formOpen=!formOpen; const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd'); card.style.display=formOpen?'block':'none'; btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado'; btn.classList.toggle('cancel',formOpen); if(formOpen) populateFormSup(); else clearForm(); }
-function clearForm(){ ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs'].forEach(id=>document.getElementById(id).value=''); document.getElementById('f_setor').value=''; document.getElementById('f_supervisor').value=''; }
-function calcDias(){ const ini=document.getElementById('f_dataInicio').value, fim=document.getElementById('f_dataFim').value; if(ini&&fim){ const d=Math.round((new Date(fim)-new Date(ini))/86400000)+1; document.getElementById('f_dias').value=d>0?${d} dia(s):''; } }
-async function submitForm(){ const v=id=>document.getElementById(id).value.trim(); if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega')||!v('f_dataInicio')||!v('f_dataFim')){ showToast('Preencha os campos obrigatórios (*)','error'); return; } const ini=v('f_dataInicio'), fim=v('f_dataFim'); const dias=Math.round((new Date(fim)-new Date(ini))/86400000)+1; const novo = { funcionario:v('f_funcionario'), matricula:v('f_matricula'), setor:v('f_setor'), supervisor:v('f_supervisor'), dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim, diasAfastamento:dias>0?dias:1, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'), hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'), createdAt: firebase.firestore.FieldValue.serverTimestamp() }; try { await db.collection('atestados').add(novo); toggleForm(); showToast('Atestado registrado com sucesso!'); } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); } }
-function openModal(docId){ const a=atestados.find(x=>x._docId===docId); if(!a) return; currentId=docId; const sc=SC[a.status]||SC.Pendente; document.getElementById('mId').textContent=Atestado · ${a.matricula}; document.getElementById('mName').textContent=a.funcionario; document.getElementById('mBadge').innerHTML=<span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span>; document.getElementById('mFields').innerHTML=[['Matrícula',a.matricula],['Setor',a.setor||'—'],['Supervisor',a.supervisor||'—'],['Data de Entrega',fmt(a.dataEntrega)],['Início do Afastamento',fmt(a.dataInicio)],['Fim do Afastamento',fmt(a.dataFim)],['Dias de Afastamento',${a.diasAfastamento} dia(s)],['CID',a.cid||'—'],['Médico',a.medico||'—'],['CRM',a.crm||'—']].map(([l,v])=><div class="mf"><div class="mf-label">${l}</div><div class="mf-value">${v}</div></div>).join(''); const oa=document.getElementById('mObsArea'), ov=document.getElementById('mObsView'), ma=document.getElementById('mActions'), mo=document.getElementById('mObs'); oa.style.display=ov.style.display=ma.style.display='none'; if(currentRole==='rh'){ oa.style.display='block'; mo.value=a.observacao||''; if(a.status==='Pendente') ma.style.display='flex'; } else if(a.observacao){ ov.style.display='block'; document.getElementById('mObsText').textContent=a.observacao; } document.getElementById('overlay').classList.add('open'); }
-function closeModal(e){ if(!e||e.target===document.getElementById('overlay')) document.getElementById('overlay').classList.remove('open'); }
-async function validateAtestado(ns){ const obs=document.getElementById('mObs').value.trim(); try { await db.collection('atestados').doc(currentId).update({ status: ns, observacao: obs || (atestados.find(a=>a._docId===currentId)||{}).observacao || '' }); document.getElementById('overlay').classList.remove('open'); showToast(ns==='Validado'?'Atestado validado com sucesso!':'Atestado recusado.',ns==='Validado'?'success':'error'); } catch(err){ showToast('Erro ao atualizar: '+err.message,'error'); } }
-function renderSupList(){ const list=document.getElementById('supList'), empty=document.getElementById('supEmpty'); document.getElementById('supCount').textContent=${supervisores.length} supervisor(es); if(!supervisores.length){ list.innerHTML=''; empty.style.display='block'; return; } empty.style.display='none'; list.innerHTML=supervisores.map((s,i)=>{ const nome = s.nome||s; const ini=nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); const ct=atestados.filter(a=>a.supervisor===nome).length; return <li class="sup-item" id="si${i}"><div class="sup-avatar">${ini}</div><div class="sup-name-wrap"><div class="sup-name-display" id="sd${i}">${nome}</div><div class="sup-name-count">${ct} atestado(s) vinculado(s)</div><input class="sup-name-input" id="si_in${i}" value="${nome.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveSup(${i})"></div><div class="sup-actions"><button class="btn-se" id="se${i}" onclick="editSup(${i})">✏️ <span>Editar</span></button><button class="btn-ss" id="ss${i}" onclick="saveSup(${i})">✓ <span>Salvar</span></button><button class="btn-sc" id="sc${i}" onclick="cancelSup(${i})">✕</button><button class="btn-sd" onclick="delSup(${i})">🗑️ <span>Remover</span></button></div></li>; }).join(''); }
-async function addSupervisor(){ const inp=document.getElementById('newSupName'), nome=inp.value.trim(); if(!nome){ showToast('Digite o nome do supervisor.','error'); return; } if(supervisores.some(s=>(s.nome||s).toLowerCase()===nome.toLowerCase())){ showToast('Supervisor já cadastrado.','error'); return; } try { await db.collection('supervisores').add({ nome, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); inp.value=''; showToast(Supervisor "${nome}" adicionado!); } catch(err){ showToast('Erro: '+err.message,'error'); } }
-function editSup(i){ document.getElementById(sd${i}).style.display='none'; document.getElementById(si_in${i}).style.display='block'; document.getElementById(se${i}).style.display='none'; document.getElementById(ss${i}).style.display='inline-block'; document.getElementById(sc${i}).style.display='inline-block'; document.getElementById(si_in${i}).focus(); }
-function cancelSup(i){ const nome=supervisores[i].nome||supervisores[i]; document.getElementById(si_in${i}).value=nome; document.getElementById(sd${i}).style.display='block'; document.getElementById(si_in${i}).style.display='none'; document.getElementById(se${i}).style.display='inline-block'; document.getElementById(ss${i}).style.display='none'; document.getElementById(sc${i}).style.display='none'; }
-async function saveSup(i){ const newName=document.getElementById(si_in${i}).value.trim(); if(!newName){ showToast('Nome não pode ser vazio.','error'); return; } const sup=supervisores[i]; const oldName=sup.nome||sup; if(newName===oldName){ cancelSup(i); return; } if(supervisores.some((s,j)=>j!==i&&(s.nome||s).toLowerCase()===newName.toLowerCase())){ showToast('Já existe supervisor com esse nome.','error'); return; } try { const batch=db.batch(); batch.update(db.collection('supervisores').doc(sup._docId), {nome: newName}); const snapAtes=await db.collection('atestados').where('supervisor','==',oldName).get(); snapAtes.docs.forEach(d=>batch.update(d.ref,{supervisor:newName})); await batch.commit(); showToast(Supervisor renomeado para "${newName}"); } catch(err){ showToast('Erro: '+err.message,'error'); } }
-async function delSup(i){ const sup=supervisores[i]; const nome=sup.nome||sup; const ct=atestados.filter(a=>a.supervisor===nome).length; const msg=ct>0?"${nome}" tem ${ct} atestado(s) vinculado(s).\nDeseja remover mesmo assim?:Remover supervisor "${nome}"?; if(!confirm(msg)) return; try { await db.collection('supervisores').doc(sup._docId).delete(); showToast('Supervisor removido.','error'); } catch(err){ showToast('Erro: '+err.message,'error'); } }
+function populateFilterSup(){
+  const sel=document.getElementById('filterSup'), cur=sel.value;
+  sel.innerHTML='<option value="">Todos os supervisores</option>'+supNames().map(n=>`<option${n===cur?' selected':''}>${n}</option>`).join('');
+}
+function populateFormSup(){
+  const sel=document.getElementById('f_supervisor'), cur=sel.value;
+  sel.innerHTML='<option value="">Selecionar…</option>'+supNames().map(n=>`<option${n===cur?' selected':''}>${n}</option>`).join('');
+}
+function renderTable(){
+  const search=document.getElementById('searchInput').value.toLowerCase(),
+        status=document.getElementById('filterStatus').value,
+        sup=document.getElementById('filterSup').value;
+  const fil=atestados.filter(a=>{
+    if(currentRole==='supervisor' && a.status==='Pendente') return false;
+    if(status && a.status!==status) return false;
+    if(sup && a.supervisor!==sup) return false;
+    if(search && !a.funcionario.toLowerCase().includes(search) && !(a.matricula||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  document.getElementById('tableCount').textContent=`${fil.length} registro(s)`;
+  const body=document.getElementById('tableBody'), empty=document.getElementById('emptyState');
+  if(!fil.length){ body.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  body.innerHTML=fil.map((a,i)=>{
+    const sc=SC[a.status]||SC.Pendente;
+    const btn=(currentRole==='rh' && a.status==='Pendente')?'✎ Analisar':'👁 Ver';
+    return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
+      <td class="td-name">${a.funcionario}</td>
+      <td><span class="td-mat">${a.matricula}</span></td>
+      <td>${a.setor||'—'}</td><td>${a.supervisor||'—'}</td>
+      <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
+      <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
+      <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
+      <td><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  FORM
+// ══════════════════════════════════════════════════
+function toggleForm(){
+  formOpen=!formOpen;
+  const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
+  card.style.display=formOpen?'block':'none';
+  btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado';
+  btn.classList.toggle('cancel',formOpen);
+  if(formOpen) populateFormSup(); else clearForm();
+}
+function clearForm(){
+  ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_setor').value='';
+  document.getElementById('f_supervisor').value='';
+}
+function calcDias(){
+  const ini=document.getElementById('f_dataInicio').value, fim=document.getElementById('f_dataFim').value;
+  if(ini&&fim){ const d=Math.round((new Date(fim)-new Date(ini))/86400000)+1; document.getElementById('f_dias').value=d>0?`${d} dia(s)`:''; }
+}
+async function submitForm(){
+  const v=id=>document.getElementById(id).value.trim();
+  if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega')||!v('f_dataInicio')||!v('f_dataFim'))
+    { showToast('Preencha os campos obrigatórios (*)','error'); return; }
+  const ini=v('f_dataInicio'), fim=v('f_dataFim');
+  const dias=Math.round((new Date(fim)-new Date(ini))/86400000)+1;
+  try {
+    await db.collection('atestados').add({
+      funcionario:v('f_funcionario'), matricula:v('f_matricula'), setor:v('f_setor'),
+      supervisor:v('f_supervisor'), dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
+      diasAfastamento:dias>0?dias:1, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
+      hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toggleForm(); showToast('Atestado registrado com sucesso!');
+  } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════
+function openModal(docId){
+  const a=atestados.find(x=>x._docId===docId); if(!a) return;
+  currentId=docId;
+  const sc=SC[a.status]||SC.Pendente;
+  document.getElementById('mId').textContent=`Atestado · ${a.matricula}`;
+  document.getElementById('mName').textContent=a.funcionario;
+  document.getElementById('mBadge').innerHTML=`<span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span>`;
+  document.getElementById('mFields').innerHTML=[
+    ['Matrícula',a.matricula],['Setor',a.setor||'—'],['Supervisor',a.supervisor||'—'],
+    ['Data de Entrega',fmt(a.dataEntrega)],['Início',fmt(a.dataInicio)],
+    ['Fim',fmt(a.dataFim)],['Dias de Afastamento',`${a.diasAfastamento} dia(s)`],
+    ['CID',a.cid||'—'],['Médico',a.medico||'—'],['CRM',a.crm||'—'],
+  ].map(([l,v])=>`<div class="mf"><div class="mf-label">${l}</div><div class="mf-value">${v}</div></div>`).join('');
+  const oa=document.getElementById('mObsArea'), ov=document.getElementById('mObsView'),
+        ma=document.getElementById('mActions'), mo=document.getElementById('mObs');
+  oa.style.display=ov.style.display=ma.style.display='none';
+  if(currentRole==='rh'){
+    oa.style.display='block'; mo.value=a.observacao||'';
+    if(a.status==='Pendente') ma.style.display='flex';
+  } else if(a.observacao){
+    ov.style.display='block'; document.getElementById('mObsText').textContent=a.observacao;
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+async function validateAtestado(ns){
+  const obs=document.getElementById('mObs').value.trim();
+  try {
+    await db.collection('atestados').doc(currentId).update({
+      status:ns, observacao: obs||(atestados.find(a=>a._docId===currentId)||{}).observacao||''
+    });
+    document.getElementById('overlay').classList.remove('open');
+    showToast(ns==='Validado'?'Atestado validado!':'Atestado recusado.',ns==='Validado'?'success':'error');
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  SUPERVISORES
+// ══════════════════════════════════════════════════
+function renderSupList(){
+  const list=document.getElementById('supList'), empty=document.getElementById('supEmpty');
+  document.getElementById('supCount').textContent=`${supervisores.length} supervisor(es)`;
+  if(!supervisores.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  list.innerHTML=supervisores.map((s,i)=>{
+    const nome=s.nome||s, ini=nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const ct=atestados.filter(a=>a.supervisor===nome).length;
+    return `<li class="sup-item" id="si${i}">
+      <div class="sup-avatar">${ini}</div>
+      <div class="sup-name-wrap">
+        <div class="sup-name-display" id="sd${i}">${nome}</div>
+        <div class="sup-name-count">${ct} atestado(s) vinculado(s)</div>
+        <input class="sup-name-input" id="si_in${i}" value="${nome.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveSup(${i})">
+      </div>
+      <div class="sup-actions">
+        <button class="btn-se" id="se${i}" onclick="editSup(${i})">✏️ <span>Editar</span></button>
+        <button class="btn-ss" id="ss${i}" onclick="saveSup(${i})">✓ <span>Salvar</span></button>
+        <button class="btn-sc" id="sc${i}" onclick="cancelSup(${i})">✕</button>
+        <button class="btn-sd" onclick="delSup(${i})">🗑️ <span>Remover</span></button>
+      </div>
+    </li>`;
+  }).join('');
+}
+async function addSupervisor(){
+  const inp=document.getElementById('newSupName'), nome=inp.value.trim();
+  if(!nome){ showToast('Digite o nome do supervisor.','error'); return; }
+  if(supervisores.some(s=>(s.nome||s).toLowerCase()===nome.toLowerCase()))
+    { showToast('Supervisor já cadastrado.','error'); return; }
+  try {
+    await db.collection('supervisores').add({nome, createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    inp.value=''; showToast(`Supervisor "${nome}" adicionado!`);
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+function editSup(i){
+  document.getElementById(`sd${i}`).style.display='none';
+  document.getElementById(`si_in${i}`).style.display='block';
+  document.getElementById(`se${i}`).style.display='none';
+  document.getElementById(`ss${i}`).style.display='inline-block';
+  document.getElementById(`sc${i}`).style.display='inline-block';
+  document.getElementById(`si_in${i}`).focus();
+}
+function cancelSup(i){
+  const nome=supervisores[i].nome||supervisores[i];
+  document.getElementById(`si_in${i}`).value=nome;
+  document.getElementById(`sd${i}`).style.display='block';
+  document.getElementById(`si_in${i}`).style.display='none';
+  document.getElementById(`se${i}`).style.display='inline-block';
+  document.getElementById(`ss${i}`).style.display='none';
+  document.getElementById(`sc${i}`).style.display='none';
+}
+async function saveSup(i){
+  const newName=document.getElementById(`si_in${i}`).value.trim();
+  if(!newName){ showToast('Nome não pode ser vazio.','error'); return; }
+  const sup=supervisores[i], oldName=sup.nome||sup;
+  if(newName===oldName){ cancelSup(i); return; }
+  if(supervisores.some((s,j)=>j!==i&&(s.nome||s).toLowerCase()===newName.toLowerCase()))
+    { showToast('Já existe supervisor com esse nome.','error'); return; }
+  try {
+    const batch=db.batch();
+    batch.update(db.collection('supervisores').doc(sup._docId),{nome:newName});
+    const snap=await db.collection('atestados').where('supervisor','==',oldName).get();
+    snap.docs.forEach(d=>batch.update(d.ref,{supervisor:newName}));
+    await batch.commit();
+    showToast(`Supervisor renomeado para "${newName}"`);
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+async function delSup(i){
+  const sup=supervisores[i], nome=sup.nome||sup;
+  const ct=atestados.filter(a=>a.supervisor===nome).length;
+  if(!confirm(ct>0?`"${nome}" tem ${ct} atestado(s) vinculado(s).\nRemover mesmo assim?`:`Remover "${nome}"?`)) return;
+  try {
+    await db.collection('supervisores').doc(sup._docId).delete();
+    showToast('Supervisor removido.','error');
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════
 function fmt(d){ if(!d)return'—'; const[y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }
-function showToast(msg,type='success'){ const t=document.getElementById('toast'); t.textContent=(type==='error'?'⚠️ ':'✅ ')+msg; t.style.background=type==='error'?'#dc3545':'#28a745'; t.style.display='block'; t.style.animation='none'; void t.offsetWidth; t.style.animation='toastIn .3s ease both'; setTimeout(()=>{ t.style.display='none'; },3200); }
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='error'?'⚠️ ':'✅ ')+msg;
+  t.style.background=type==='error'?'#dc3545':'#28a745';
+  t.style.display='block'; t.style.animation='none'; void t.offsetWidth;
+  t.style.animation='toastIn .3s ease both';
+  setTimeout(()=>{ t.style.display='none'; },3200);
+}
 </script>
 </body>
 </html>
