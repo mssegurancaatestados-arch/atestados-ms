@@ -46,6 +46,17 @@
   .login-footer{text-align:center;font-size:11px;color:#bbb;margin-top:32px}
   .login-err{display:none;margin-top:16px;padding:12px 16px;background:#fdecea;border-radius:10px;
     font-size:13px;color:#c62828;font-weight:600;text-align:center}
+  .pwd-area{display:none;margin-top:18px;animation:slideIn .2s ease both}
+  .pwd-area label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .pwd-wrap{display:flex;gap:8px}
+  .pwd-wrap input{flex:1;padding:12px 16px;border:1.5px solid var(--gray-border);border-radius:10px;
+    font-size:15px;font-family:'Barlow',sans-serif;outline:none;transition:border .2s;background:#fafbff}
+  .pwd-wrap input:focus{border-color:var(--blue);background:#fff}
+  .btn-entrar{padding:12px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
+  .btn-entrar:hover{background:var(--blue-dark)}
+  .btn-voltar{display:block;background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;
+    font-family:'Barlow',sans-serif;margin-top:12px;text-decoration:underline;width:100%;text-align:center}
 
   /* APP */
   #app{display:none;min-height:100vh;flex-direction:column}
@@ -230,15 +241,23 @@
       <div class="login-brand">Segurança e Serviços</div>
     </div>
     <div class="login-title">Gestão de Atestados</div>
-    <div class="login-sub">Selecione seu perfil de acesso</div>
-    <button class="login-btn rh" onclick="doLogin('rh')">
+    <div class="login-sub" id="loginSub">Selecione seu perfil de acesso</div>
+    <button class="login-btn rh" id="btnRH" onclick="selectPerfil('rh')">
       <span class="btn-icon">🗂️</span>
       <div><div class="btn-label">Recursos Humanos</div><div class="btn-desc">Registrar, validar e configurar</div></div>
     </button>
-    <button class="login-btn sup" onclick="doLogin('supervisor')">
+    <button class="login-btn sup" id="btnSup" onclick="selectPerfil('supervisor')">
       <span class="btn-icon">👁️</span>
       <div><div class="btn-label">Supervisor</div><div class="btn-desc">Consultar atestados validados</div></div>
     </button>
+    <div class="pwd-area" id="pwdArea">
+      <label>Senha de acesso</label>
+      <div class="pwd-wrap">
+        <input type="password" id="pwdInput" placeholder="Digite a senha…" onkeydown="if(event.key==='Enter')confirmarSenha()">
+        <button class="btn-entrar" onclick="confirmarSenha()">Entrar →</button>
+      </div>
+      <button class="btn-voltar" onclick="voltarPerfil()">← Voltar</button>
+    </div>
     <div class="login-err" id="loginErr"></div>
     <div class="login-footer">Sistema interno · M.S Segurança e Serviços</div>
   </div>
@@ -463,6 +482,43 @@ function setSyncStatus(ok){
   if(d){ d.classList.toggle('off',!ok); d.title = ok ? '🟢 Sincronizado' : '🔴 Sem conexão'; }
 }
 
+// ══════════════════════════════════════════════════
+//  SENHAS DE ACESSO
+// ══════════════════════════════════════════════════
+const SENHAS = { rh: 'ms2025', supervisor: 'sup2025' };
+let perfilSelecionado = null;
+
+function selectPerfil(r){
+  perfilSelecionado = r;
+  document.getElementById('btnRH').style.opacity = r==='rh' ? '1' : '0.4';
+  document.getElementById('btnSup').style.opacity = r==='supervisor' ? '1' : '0.4';
+  document.getElementById('pwdArea').style.display = 'block';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginSub').textContent = r==='rh' ? 'Digite a senha do RH' : 'Digite a senha do Supervisor';
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdInput').focus();
+}
+function voltarPerfil(){
+  perfilSelecionado = null;
+  document.getElementById('btnRH').style.opacity = '1';
+  document.getElementById('btnSup').style.opacity = '1';
+  document.getElementById('pwdArea').style.display = 'none';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginSub').textContent = 'Selecione seu perfil de acesso';
+}
+function confirmarSenha(){
+  const pwd = document.getElementById('pwdInput').value;
+  if(pwd === SENHAS[perfilSelecionado]){
+    doLogin(perfilSelecionado);
+  } else {
+    const err = document.getElementById('loginErr');
+    err.textContent = '⚠️ Senha incorreta. Tente novamente.';
+    err.style.display = 'block';
+    document.getElementById('pwdInput').value = '';
+    document.getElementById('pwdInput').focus();
+  }
+}
+
 function doLogin(r){
   currentRole = r;
   document.getElementById('loginScreen').style.display = 'none';
@@ -479,6 +535,7 @@ function doLogout(){
   document.getElementById('app').style.display = 'none';
   document.getElementById('formCard').style.display = 'none';
   ['searchInput','filterStatus','filterSup'].forEach(id => document.getElementById(id).value='');
+  voltarPerfil();
 }
 function switchTab(tab){
   activeTab = tab;
