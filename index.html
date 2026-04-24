@@ -5,8 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>M.S Segurança e Serviços – Gestão de Atestados</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet"/>
+<!-- SheetJS para exportar Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  :root{--blue:#2B5BAD;--blue-dark:#1a3a75;--blue-light:#e8eef8;--blue-mid:#d0daf0;--gray-light:#f0f2f7;--gray-border:#e0e4ec;--green:#1e7e34;--green-bg:#e6f4ea;--yellow:#856404;--yellow-bg:#fff8e1;--red:#c62828;--red-bg:#fdecea;--text:#1a2035}
+  :root{
+    --blue:#2B5BAD;--blue-dark:#1a3a75;--blue-light:#e8eef8;--blue-mid:#d0daf0;
+    --gray-light:#f0f2f7;--gray-border:#e0e4ec;
+    --green:#155724;--green-bg:#d4edda;--green-btn:#1e7e34;--green-btn-dark:#155724;
+    --yellow:#856404;--yellow-bg:#fff3cd;
+    --red:#721c24;--red-bg:#f8d7da;--red-btn:#c62828;--red-btn-dark:#8b0000;
+    --orange:#7d3c0a;--orange-bg:#fde8d0;--orange-btn:#e07b2a;--orange-btn-dark:#b85e18;
+    --purple:#4a235a;--purple-bg:#e8d5f5;--purple-btn:#7b2fbe;--purple-btn-dark:#5a1f8c;
+    --text:#1a2035
+  }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Barlow',sans-serif;background:var(--gray-light);color:var(--text);min-height:100vh}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -44,8 +55,8 @@
   .btn-icon{font-size:30px;flex-shrink:0}.btn-label{font-size:16px;font-weight:800;color:var(--blue-dark)}
   .btn-desc{font-size:12px;color:#888;margin-top:2px}
   .login-footer{text-align:center;font-size:11px;color:#bbb;margin-top:32px}
-  .login-err{display:none;margin-top:16px;padding:12px 16px;background:#fdecea;border-radius:10px;
-    font-size:13px;color:#c62828;font-weight:600;text-align:center}
+  .login-err{display:none;margin-top:16px;padding:12px 16px;background:#f8d7da;border-radius:10px;
+    font-size:13px;color:#721c24;font-weight:600;text-align:center}
   .pwd-area{display:none;margin-top:18px;animation:slideIn .2s ease both}
   .pwd-area label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
   .pwd-wrap{display:flex;gap:8px}
@@ -82,7 +93,7 @@
     border:none;background:none;font-family:'Barlow',sans-serif;user-select:none}
   .nav-tab:hover{color:var(--blue)}.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-  .app-main{padding:28px 32px;max-width:1240px;width:100%;margin:0 auto}
+  .app-main{padding:28px 32px;max-width:1280px;width:100%;margin:0 auto}
 
   .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
   .stat-card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:0 2px 10px rgba(0,0,0,.06);
@@ -95,9 +106,24 @@
     font-size:13px;background:#fff;font-family:'Barlow',sans-serif;outline:none;transition:border .2s;color:var(--text)}
   .toolbar input{flex:1;min-width:220px}
   .toolbar input:focus,.toolbar select:focus{border-color:var(--blue)}
-  .btn-add{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;
-    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
-  .btn-add:hover{background:var(--blue-dark);transform:translateY(-1px)}.btn-add.cancel{background:#dc3545}
+
+  /* ── BOTÕES COLORIDOS COM CONTRASTE ── */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border:none;border-radius:10px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap;color:#fff;text-decoration:none}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .btn:active{transform:translateY(0)}
+  .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-dark)}
+  .btn-green{background:var(--green-btn);color:#fff}.btn-green:hover{background:var(--green-btn-dark)}
+  .btn-red{background:var(--red-btn);color:#fff}.btn-red:hover{background:var(--red-btn-dark)}
+  .btn-orange{background:var(--orange-btn);color:#fff}.btn-orange:hover{background:var(--orange-btn-dark)}
+  .btn-purple{background:var(--purple-btn);color:#fff}.btn-purple:hover{background:var(--purple-btn-dark)}
+  .btn-gray{background:#5a6a7a;color:#fff}.btn-gray:hover{background:#3d4d5c}
+  .btn-sm{padding:6px 14px;font-size:12px;border-radius:7px}
+  .btn-outline-blue{background:var(--blue-light);color:var(--blue-dark);border:1.5px solid var(--blue)}.btn-outline-blue:hover{background:var(--blue);color:#fff}
+  .btn-outline-red{background:var(--red-bg);color:var(--red);border:1.5px solid #e0a0a5}.btn-outline-red:hover{background:var(--red-btn);color:#fff;border-color:var(--red-btn)}
+  .btn-add{background:var(--blue);color:#fff}.btn-add:hover{background:var(--blue-dark)}.btn-add.cancel{background:var(--red-btn)}.btn-add.cancel:hover{background:var(--red-btn-dark)}
+  /* legado compatível */
+  .btn-add{padding:10px 22px;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s;white-space:nowrap}
 
   .form-card{background:#fff;border-radius:16px;margin-bottom:24px;
     box-shadow:0 6px 24px rgba(43,91,173,.13);border:1.5px solid var(--blue-mid);
@@ -117,10 +143,11 @@
   .form-obs textarea:focus{border-color:var(--blue)}
   .form-footer{padding:14px 26px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
   .btn-cancel2{padding:10px 20px;background:#fff;border:1.5px solid #ddd;border-radius:9px;
-    cursor:pointer;font-size:13px;color:#666;font-family:'Barlow',sans-serif;font-weight:600}
-  .btn-save{padding:10px 26px;background:var(--blue);color:#fff;border:none;border-radius:9px;
+    cursor:pointer;font-size:13px;color:#666;font-family:'Barlow',sans-serif;font-weight:600;transition:all .2s}
+  .btn-cancel2:hover{border-color:#aaa;background:#f5f5f5}
+  .btn-save{padding:10px 26px;background:var(--green-btn);color:#fff;border:none;border-radius:9px;
     font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s}
-  .btn-save:hover{background:var(--blue-dark)}
+  .btn-save:hover{background:var(--green-btn-dark);transform:translateY(-1px)}
 
   .table-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;animation:fadeUp .4s .1s ease both}
   .table-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eef0f5}
@@ -133,15 +160,17 @@
   tbody td{padding:13px 16px;font-size:13px;color:#333;border-bottom:1px solid #f0f2f5;vertical-align:middle}
   tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:#f5f8ff}
   .td-name{font-weight:700;color:var(--text)}
-  .td-mat{background:var(--blue-light);color:var(--blue);padding:2px 9px;border-radius:5px;font-size:11px;font-family:monospace;font-weight:700}
+  .td-mat{background:var(--blue-light);color:var(--blue-dark);padding:2px 9px;border-radius:5px;font-size:11px;font-family:monospace;font-weight:700}
   .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
   .badge-dot{width:7px;height:7px;border-radius:50%}
   .badge.validado{background:var(--green-bg);color:var(--green)}
   .badge.pendente{background:var(--yellow-bg);color:var(--yellow)}
   .badge.recusado{background:var(--red-bg);color:var(--red)}
-  .btn-view{padding:5px 14px;background:var(--blue-light);color:var(--blue);border:none;border-radius:7px;
+  .btn-view{padding:5px 14px;background:var(--blue);color:#fff;border:none;border-radius:7px;
     cursor:pointer;font-weight:700;font-size:12px;font-family:'Barlow',sans-serif;transition:all .15s}
-  .btn-view:hover{background:var(--blue);color:#fff}
+  .btn-view:hover{background:var(--blue-dark);transform:translateY(-1px)}
+  .btn-analisar{background:var(--orange-btn);color:#fff}
+  .btn-analisar:hover{background:var(--orange-btn-dark)}
   .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
   .empty-state span{font-size:40px;display:block;margin-bottom:12px}
 
@@ -171,10 +200,10 @@
   .sup-actions{display:flex;gap:6px;flex-shrink:0}
   .sup-actions button{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;
     cursor:pointer;font-family:'Barlow',sans-serif;border:none;transition:all .15s;white-space:nowrap}
-  .btn-se{background:var(--blue-light);color:var(--blue)}.btn-se:hover{background:var(--blue);color:#fff}
-  .btn-ss{background:#28a745;color:#fff;display:none}
-  .btn-sc{background:#f0f2f7;color:#666;display:none}
-  .btn-sd{background:var(--red-bg);color:var(--red)}.btn-sd:hover{background:#dc3545;color:#fff}
+  .btn-se{background:var(--blue-light);color:var(--blue-dark);border:1px solid var(--blue)}.btn-se:hover{background:var(--blue);color:#fff}
+  .btn-ss{background:var(--green-btn);color:#fff;display:none}.btn-ss:hover{background:var(--green-btn-dark)}
+  .btn-sc{background:#f0f2f7;color:#444;border:1px solid #ccc;display:none}.btn-sc:hover{background:#e0e0e0}
+  .btn-sd{background:var(--red-bg);color:var(--red)}.btn-sd:hover{background:var(--red-btn);color:#fff}
   .sup-empty{padding:40px;text-align:center;color:#bbb;font-size:14px}
   .sup-info-box{margin:20px 26px;padding:14px 18px;background:#fffbea;border:1px solid #ffe082;
     border-radius:10px;font-size:13px;color:#5a4a00;line-height:1.6}
@@ -203,27 +232,86 @@
   .modal-obs textarea:focus{border-color:var(--blue)}
   .modal-obs-view{padding:0 28px 16px;font-size:13px;color:#555}
   .modal-obs-view strong{color:#888;font-weight:700}
-  .modal-actions{padding:16px 28px 24px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
-  .btn-recusar{padding:11px 24px;background:var(--red-bg);color:var(--red);border:1.5px solid #f5c6cb;
+  .modal-actions{padding:16px 28px 24px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+  .btn-recusar{padding:11px 24px;background:var(--red-btn);color:#fff;border:none;
     border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
-  .btn-recusar:hover{background:#dc3545;color:#fff;border-color:#dc3545}
-  .btn-validar{padding:11px 28px;background:var(--blue);color:#fff;border:none;border-radius:10px;
+  .btn-recusar:hover{background:var(--red-btn-dark);transform:translateY(-1px)}
+  .btn-validar{padding:11px 28px;background:var(--green-btn);color:#fff;border:none;border-radius:10px;
     font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
-  .btn-validar:hover{background:var(--blue-dark)}
-  .btn-excluir{padding:11px 24px;background:#fff;color:var(--red);border:1.5px solid #f5c6cb;
+  .btn-validar:hover{background:var(--green-btn-dark);transform:translateY(-1px)}
+  .btn-excluir{padding:11px 24px;background:#fff;color:var(--red);border:2px solid var(--red-btn);
     border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;margin-right:auto}
-  .btn-excluir:hover{background:var(--red);color:#fff;border-color:var(--red)}
+  .btn-excluir:hover{background:var(--red-btn);color:#fff}
 
   /* TOAST */
   #toast{position:fixed;top:22px;right:22px;padding:13px 22px;border-radius:11px;color:#fff;
     font-weight:700;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;display:none}
 
-  @media(max-width:900px){.stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}.app-main{padding:18px 16px}.app-header,.nav-tabs{padding-left:16px;padding-right:16px}}
+  /* ════════════════════════════════════════
+     ABA RELATÓRIOS
+  ════════════════════════════════════════ */
+  #relPanel{display:none;animation:fadeUp .3s ease both}
+  .rel-top{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:22px;
+    background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .rel-top label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .rel-top select,.rel-top input{padding:9px 13px;border:1.5px solid var(--gray-border);border-radius:9px;
+    font-size:13px;font-family:'Barlow',sans-serif;outline:none;transition:border .2s;background:#fafbff;min-width:180px}
+  .rel-top select:focus,.rel-top input:focus{border-color:var(--blue)}
+  .rel-top-actions{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-left:auto}
+
+  .rel-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+  .rel-sc{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+    border-left:5px solid var(--c);animation:fadeUp .35s ease both}
+  .rel-sc-val{font-size:26px;font-weight:900;color:var(--c);line-height:1}
+  .rel-sc-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+
+  .rel-func-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:22px}
+  .rel-func-header{padding:16px 24px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:center}
+  .rel-func-title{font-size:15px;font-weight:800;color:var(--blue-dark)}
+  .rel-func-sub{font-size:12px;color:#aaa;margin-top:2px}
+  .rel-func-list{list-style:none}
+  .rel-func-item{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid #f0f2f5;
+    cursor:pointer;transition:background .15s}
+  .rel-func-item:last-child{border-bottom:none}
+  .rel-func-item:hover{background:#f5f8ff}
+  .rel-func-item.selected{background:#e8eef8;border-left:4px solid var(--blue)}
+  .rel-func-avatar{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
+  .rel-func-info{flex:1;min-width:0}
+  .rel-func-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+  .rel-func-meta{font-size:12px;color:#999}
+  .rel-func-badges{display:flex;gap:6px;flex-shrink:0;align-items:center}
+  .rel-func-stat{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+  .rel-func-stat.v{background:var(--green-bg);color:var(--green)}
+  .rel-func-stat.p{background:var(--yellow-bg);color:var(--yellow)}
+  .rel-func-stat.r{background:var(--red-bg);color:var(--red)}
+  .rel-func-dias{font-size:22px;font-weight:900;color:var(--blue);min-width:52px;text-align:right}
+  .rel-func-dias-lbl{font-size:10px;color:#aaa;text-align:right;font-weight:600}
+
+  .rel-detail{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:22px;animation:slideIn .2s ease both}
+  .rel-detail-header{padding:18px 24px;background:linear-gradient(90deg,var(--blue-light),#fff);border-bottom:1px solid var(--blue-mid);display:flex;justify-content:space-between;align-items:center}
+  .rel-detail-name{font-size:17px;font-weight:900;color:var(--blue-dark)}
+  .rel-detail-mat{font-size:12px;color:#999;font-weight:700;margin-top:2px}
+  .rel-empty{padding:50px 24px;text-align:center;color:#ccc;font-size:14px}
+  .rel-empty span{font-size:36px;display:block;margin-bottom:10px}
+
+  @media(max-width:1100px){.rel-summary{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}.app-main{padding:18px 16px}.app-header,.nav-tabs{padding-left:16px;padding-right:16px}.rel-summary{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){
     .stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}
     .modal-fields{grid-template-columns:1fr}.mf:nth-child(even){border-left:none;padding-left:0}
     .login-card{padding:36px 22px 28px;width:98vw}
     thead th:nth-child(3),thead th:nth-child(4),tbody td:nth-child(3),tbody td:nth-child(4){display:none}
+    .rel-summary{grid-template-columns:1fr 1fr}.rel-top{flex-direction:column}
+    .rel-top-actions{margin-left:0;width:100%}
+  }
+
+  /* Print styles para PDF */
+  @media print {
+    .app-header,.nav-tabs,.rel-top,.rel-func-card,.no-print{display:none!important}
+    .rel-detail{box-shadow:none;border:1px solid #ccc}
+    body{background:#fff}
+    .app-main{padding:0;max-width:100%}
   }
 </style>
 </head>
@@ -283,10 +371,13 @@
 
   <div class="nav-tabs" id="navTabs" style="display:none">
     <button class="nav-tab active" id="tab-atestados" onclick="switchTab('atestados')">📋 Atestados</button>
-    <button class="nav-tab" id="tab-supervisores" onclick="switchTab('supervisores')">👤 Gerenciar Supervisores</button>
+    <button class="nav-tab" id="tab-relatorios" onclick="switchTab('relatorios')">📊 Relatórios</button>
+    <button class="nav-tab" id="tab-supervisores" onclick="switchTab('supervisores')">👤 Supervisores</button>
   </div>
 
   <main class="app-main">
+
+    <!-- ABA ATESTADOS -->
     <div id="atestadosPanel">
       <div class="stats-row" id="statsRow"></div>
       <div class="toolbar">
@@ -298,7 +389,7 @@
           <option value="Recusado">Recusado</option>
         </select>
         <select id="filterSup" onchange="renderTable()"><option value="">Todos os supervisores</option></select>
-        <button class="btn-add" id="btnAdd" onclick="toggleForm()">+ Novo Atestado</button>
+        <button class="btn-add btn-blue" id="btnAdd" onclick="toggleForm()">+ Novo Atestado</button>
       </div>
 
       <div class="form-card" id="formCard" style="display:none">
@@ -350,6 +441,79 @@
       </div>
     </div>
 
+    <!-- ABA RELATÓRIOS -->
+    <div id="relPanel">
+      <!-- Filtros do relatório -->
+      <div class="rel-top no-print">
+        <div>
+          <label>Filtrar por Funcionário</label>
+          <select id="relFiltroFunc" onchange="renderRelatorio()">
+            <option value="">Todos os funcionários</option>
+          </select>
+        </div>
+        <div>
+          <label>Filtrar por Status</label>
+          <select id="relFiltroStatus" onchange="renderRelatorio()">
+            <option value="">Todos</option>
+            <option value="Validado">Validado</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Recusado">Recusado</option>
+          </select>
+        </div>
+        <div>
+          <label>Período — De</label>
+          <input type="date" id="relDe" onchange="renderRelatorio()">
+        </div>
+        <div>
+          <label>Período — Até</label>
+          <input type="date" id="relAte" onchange="renderRelatorio()">
+        </div>
+        <div class="rel-top-actions">
+          <button class="btn btn-purple" onclick="exportarPDF()">🖨️ Exportar PDF</button>
+          <button class="btn btn-green" onclick="exportarExcel()">📗 Excel</button>
+          <button class="btn btn-orange" onclick="exportarCSV()">📄 CSV</button>
+        </div>
+      </div>
+
+      <!-- Resumo geral -->
+      <div class="rel-summary" id="relSummary"></div>
+
+      <!-- Lista de funcionários agrupada -->
+      <div class="rel-func-card">
+        <div class="rel-func-header">
+          <div>
+            <div class="rel-func-title">👥 Funcionários com Atestados</div>
+            <div class="rel-func-sub" id="relFuncSub">Clique em um funcionário para ver o histórico detalhado</div>
+          </div>
+          <span class="table-count" id="relFuncCount">0</span>
+        </div>
+        <ul class="rel-func-list" id="relFuncList">
+          <li class="rel-empty"><span>📊</span>Nenhum dado disponível</li>
+        </ul>
+      </div>
+
+      <!-- Detalhe do funcionário selecionado -->
+      <div class="rel-detail" id="relDetail" style="display:none">
+        <div class="rel-detail-header">
+          <div>
+            <div class="rel-detail-name" id="relDetailName">—</div>
+            <div class="rel-detail-mat" id="relDetailMat">—</div>
+          </div>
+          <button class="btn btn-gray btn-sm no-print" onclick="fecharDetalhe()">✕ Fechar</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Data Entrega</th><th>Início</th><th>Fim</th><th style="text-align:center">Dias</th>
+              <th>CID</th><th>Médico</th><th>Status</th><th>Observação</th>
+            </tr></thead>
+            <tbody id="relDetailBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA SUPERVISORES -->
     <div id="supPanel">
       <div class="sup-card">
         <div class="sup-head">
@@ -366,6 +530,7 @@
         <div id="supEmpty" class="sup-empty" style="display:none">Nenhum supervisor cadastrado.</div>
       </div>
     </div>
+
   </main>
 </div>
 
@@ -400,7 +565,7 @@
 
 <script>
 // ══════════════════════════════════════════════════
-//  CONFIGURAÇÃO FIREBASE — credenciais do seu projeto
+//  CONFIGURAÇÃO FIREBASE
 // ══════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyCL4zpu2yN8_TeY28lwOZ0akUy7peLLUVg",
@@ -418,10 +583,12 @@ let db = null;
 let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestados';
 let atestados = [], supervisores = [];
 let unsubAtestados = null, unsubSupervisores = null;
+let relFuncSelecionado = null;
+
 const SC = {
-  Validado:{cls:'validado',dot:'#28a745'},
-  Pendente:{cls:'pendente',dot:'#ffc107'},
-  Recusado:{cls:'recusado',dot:'#dc3545'}
+  Validado:{cls:'validado',dot:'#1e7e34'},
+  Pendente:{cls:'pendente',dot:'#856404'},
+  Recusado:{cls:'recusado',dot:'#721c24'}
 };
 
 // ══════════════════════════════════════════════════
@@ -450,7 +617,12 @@ function startListeners() {
     .onSnapshot(snap => {
       atestados = snap.docs.map(d => ({...d.data(), _docId: d.id}));
       setSyncStatus(true);
-      if(currentRole){ populateFilterSup(); renderStats(); renderTable(); }
+      if(currentRole){
+        populateFilterSup();
+        renderStats();
+        renderTable();
+        if(activeTab === 'relatorios') renderRelatorio();
+      }
     }, () => setSyncStatus(false));
 
   if(unsubSupervisores) unsubSupervisores();
@@ -534,7 +706,7 @@ function doLogin(r){
   switchTab('atestados');
 }
 function doLogout(){
-  currentRole = null; formOpen = false; activeTab = 'atestados';
+  currentRole = null; formOpen = false; activeTab = 'atestados'; relFuncSelecionado = null;
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('app').style.display = 'none';
   document.getElementById('formCard').style.display = 'none';
@@ -543,12 +715,15 @@ function doLogout(){
 }
 function switchTab(tab){
   activeTab = tab;
-  document.getElementById('atestadosPanel').style.display = tab==='atestados' ? 'block' : 'none';
-  document.getElementById('supPanel').style.display = tab==='supervisores' ? 'block' : 'none';
+  ['atestados','relatorios','supervisores'].forEach(t => {
+    const panel = document.getElementById(t + 'Panel');
+    if(panel) panel.style.display = t===tab ? 'block' : 'none';
+  });
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const el = document.getElementById('tab-'+tab); if(el) el.classList.add('active');
   if(tab==='atestados'){ populateFilterSup(); renderStats(); renderTable(); }
-  else renderSupList();
+  else if(tab==='supervisores') renderSupList();
+  else if(tab==='relatorios') renderRelatorio();
 }
 
 // ══════════════════════════════════════════════════
@@ -559,9 +734,9 @@ function renderStats(){
         p=atestados.filter(a=>a.status==='Pendente').length, r=atestados.filter(a=>a.status==='Recusado').length;
   document.getElementById('statsRow').innerHTML=[
     {lbl:'Total',val:t,c:'#2B5BAD',icon:'📋'},
-    {lbl:'Validados',val:v,c:'#28a745',icon:'✅'},
+    {lbl:'Validados',val:v,c:'#1e7e34',icon:'✅'},
     {lbl:'Pendentes',val:p,c:'#e6a800',icon:'⏳'},
-    {lbl:'Recusados',val:r,c:'#dc3545',icon:'❌'},
+    {lbl:'Recusados',val:r,c:'#c62828',icon:'❌'},
   ].map(i=>`<div class="stat-card" style="--c:${i.c}"><div class="stat-icon">${i.icon}</div><div><div class="stat-val">${i.val}</div><div class="stat-lbl">${i.lbl}</div></div></div>`).join('');
 }
 function supNames(){ return supervisores.map(s=>s.nome||s); }
@@ -590,7 +765,9 @@ function renderTable(){
   empty.style.display='none';
   body.innerHTML=fil.map((a,i)=>{
     const sc=SC[a.status]||SC.Pendente;
-    const btn=(currentRole==='rh' && a.status==='Pendente')?'✎ Analisar':'👁 Ver';
+    const isPending = currentRole==='rh' && a.status==='Pendente';
+    const btnClass = isPending ? 'btn-view btn-analisar' : 'btn-view';
+    const btnText = isPending ? '✎ Analisar' : '👁 Ver';
     return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
       <td class="td-name">${a.funcionario}</td>
       <td><span class="td-mat">${a.matricula}</span></td>
@@ -598,7 +775,7 @@ function renderTable(){
       <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
       <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
       <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
-      <td><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button></td>
+      <td><button class="${btnClass}" onclick="openModal('${a._docId}')">${btnText}</button></td>
     </tr>`;
   }).join('');
 }
@@ -693,8 +870,7 @@ async function validateAtestado(ns){
 async function excluirAtestado(){
   const a = atestados.find(x=>x._docId===currentId);
   if(!a) return;
-  if(!confirm(`Excluir o atestado de "${a.funcionario}"?
-Esta ação não pode ser desfeita.`)) return;
+  if(!confirm(`Excluir o atestado de "${a.funcionario}"?\nEsta ação não pode ser desfeita.`)) return;
   try {
     await db.collection('atestados').doc(currentId).delete();
     document.getElementById('overlay').classList.remove('open');
@@ -780,13 +956,252 @@ async function delSup(i){
 }
 
 // ══════════════════════════════════════════════════
+//  RELATÓRIOS POR FUNCIONÁRIO
+// ══════════════════════════════════════════════════
+function getAtestadosFiltrados(){
+  const func  = document.getElementById('relFiltroFunc')?.value  || '';
+  const status= document.getElementById('relFiltroStatus')?.value|| '';
+  const de    = document.getElementById('relDe')?.value          || '';
+  const ate   = document.getElementById('relAte')?.value         || '';
+  return atestados.filter(a=>{
+    if(func && a.funcionario !== func) return false;
+    if(status && a.status !== status)  return false;
+    if(de  && a.dataInicio && a.dataInicio < de)  return false;
+    if(ate && a.dataFim    && a.dataFim    > ate)  return false;
+    return true;
+  });
+}
+
+function renderRelatorio(){
+  const fil = getAtestadosFiltrados();
+
+  // Popula select de funcionários
+  const funcSel = document.getElementById('relFiltroFunc');
+  const curFunc = funcSel.value;
+  const funcNomes = [...new Set(atestados.map(a=>a.funcionario))].sort();
+  funcSel.innerHTML = '<option value="">Todos os funcionários</option>' +
+    funcNomes.map(n=>`<option${n===curFunc?' selected':''}>${n}</option>`).join('');
+
+  // Summary cards
+  const total = fil.length;
+  const valid = fil.filter(a=>a.status==='Validado').length;
+  const pend  = fil.filter(a=>a.status==='Pendente').length;
+  const recu  = fil.filter(a=>a.status==='Recusado').length;
+  const dias  = fil.reduce((s,a)=>s+(+a.diasAfastamento||0),0);
+  document.getElementById('relSummary').innerHTML=[
+    {lbl:'Total de Atestados',val:total,c:'#2B5BAD'},
+    {lbl:'Validados',         val:valid, c:'#1e7e34'},
+    {lbl:'Pendentes',         val:pend,  c:'#856404'},
+    {lbl:'Recusados',         val:recu,  c:'#c62828'},
+    {lbl:'Dias Afastamento',  val:dias,  c:'#7b2fbe'},
+  ].map(i=>`<div class="rel-sc" style="--c:${i.c}"><div class="rel-sc-val">${i.val}</div><div class="rel-sc-lbl">${i.lbl}</div></div>`).join('');
+
+  // Agrupa por funcionário
+  const grupos = {};
+  fil.forEach(a=>{
+    if(!grupos[a.funcionario]) grupos[a.funcionario]={matricula:a.matricula,setor:a.setor,lista:[]};
+    grupos[a.funcionario].lista.push(a);
+  });
+
+  const keys = Object.keys(grupos).sort();
+  document.getElementById('relFuncCount').textContent = keys.length;
+  document.getElementById('relFuncSub').textContent = keys.length
+    ? 'Clique em um funcionário para ver o histórico detalhado'
+    : 'Nenhum funcionário encontrado com os filtros aplicados';
+
+  const ul = document.getElementById('relFuncList');
+  if(!keys.length){
+    ul.innerHTML='<li class="rel-empty"><span>📊</span>Nenhum dado disponível</li>';
+    document.getElementById('relDetail').style.display='none';
+    return;
+  }
+
+  ul.innerHTML = keys.map(nome=>{
+    const g = grupos[nome];
+    const v = g.lista.filter(a=>a.status==='Validado').length;
+    const p = g.lista.filter(a=>a.status==='Pendente').length;
+    const r = g.lista.filter(a=>a.status==='Recusado').length;
+    const d = g.lista.reduce((s,a)=>s+(+a.diasAfastamento||0),0);
+    const ini = nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const sel = relFuncSelecionado===nome ? ' selected' : '';
+    return `<li class="rel-func-item${sel}" onclick="selecionarFuncionario('${nome.replace(/'/g,"\\'")}')">
+      <div class="rel-func-avatar">${ini}</div>
+      <div class="rel-func-info">
+        <div class="rel-func-name">${nome}</div>
+        <div class="rel-func-meta">${g.matricula||'—'} · ${g.setor||'—'} · ${g.lista.length} atestado(s)</div>
+      </div>
+      <div class="rel-func-badges">
+        ${v?`<span class="rel-func-stat v">✅ ${v}</span>`:''}
+        ${p?`<span class="rel-func-stat p">⏳ ${p}</span>`:''}
+        ${r?`<span class="rel-func-stat r">❌ ${r}</span>`:''}
+      </div>
+      <div>
+        <div class="rel-func-dias">${d}</div>
+        <div class="rel-func-dias-lbl">dias</div>
+      </div>
+    </li>`;
+  }).join('');
+
+  // Se havia selecionado, mostra detalhe
+  if(relFuncSelecionado && grupos[relFuncSelecionado]){
+    mostrarDetalhe(relFuncSelecionado, grupos[relFuncSelecionado]);
+  } else {
+    document.getElementById('relDetail').style.display='none';
+  }
+}
+
+function selecionarFuncionario(nome){
+  relFuncSelecionado = nome;
+  const fil = getAtestadosFiltrados();
+  const grupos = {};
+  fil.forEach(a=>{
+    if(!grupos[a.funcionario]) grupos[a.funcionario]={matricula:a.matricula,setor:a.setor,lista:[]};
+    grupos[a.funcionario].lista.push(a);
+  });
+  // Atualiza destaque
+  document.querySelectorAll('.rel-func-item').forEach(el=>el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  if(grupos[nome]) mostrarDetalhe(nome, grupos[nome]);
+}
+
+function mostrarDetalhe(nome, g){
+  document.getElementById('relDetail').style.display='block';
+  document.getElementById('relDetailName').textContent=nome;
+  document.getElementById('relDetailMat').textContent=`Matrícula: ${g.matricula||'—'} · Setor: ${g.setor||'—'}`;
+  const sorted = [...g.lista].sort((a,b)=>(b.dataInicio||'').localeCompare(a.dataInicio||''));
+  document.getElementById('relDetailBody').innerHTML = sorted.map((a,i)=>{
+    const sc = SC[a.status]||SC.Pendente;
+    return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
+      <td>${fmt(a.dataEntrega)}</td>
+      <td>${fmt(a.dataInicio)}</td>
+      <td>${fmt(a.dataFim)}</td>
+      <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
+      <td>${a.cid||'—'}</td>
+      <td style="font-size:12px">${a.medico||'—'}</td>
+      <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
+      <td style="font-size:12px;color:#777">${a.observacao||'—'}</td>
+    </tr>`;
+  }).join('');
+  // Scroll suave até o detalhe
+  setTimeout(()=>document.getElementById('relDetail').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function fecharDetalhe(){
+  relFuncSelecionado = null;
+  document.getElementById('relDetail').style.display='none';
+  document.querySelectorAll('.rel-func-item').forEach(el=>el.classList.remove('selected'));
+}
+
+// ══════════════════════════════════════════════════
+//  EXPORTAÇÕES
+// ══════════════════════════════════════════════════
+function dadosParaExportar(){
+  const fil = getAtestadosFiltrados();
+  return fil.map(a=>({
+    'Funcionário'      : a.funcionario||'',
+    'Matrícula'        : a.matricula||'',
+    'Setor'            : a.setor||'',
+    'Supervisor'       : a.supervisor||'',
+    'Data de Entrega'  : fmt(a.dataEntrega),
+    'Início Afastamento': fmt(a.dataInicio),
+    'Fim Afastamento'  : fmt(a.dataFim),
+    'Dias'             : a.diasAfastamento||0,
+    'CID'              : a.cid||'',
+    'Médico'           : a.medico||'',
+    'CRM'              : a.crm||'',
+    'Hospital/Clínica' : a.hospital||'',
+    'Status'           : a.status||'',
+    'Observações'      : a.observacao||''
+  }));
+}
+
+function exportarCSV(){
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const cabecalho = Object.keys(dados[0]);
+  const linhas = [cabecalho, ...dados.map(r=>cabecalho.map(c=>`"${String(r[c]).replace(/"/g,'""')}"`))]
+    .map(r=>r.join(';')).join('\r\n');
+  const bom = '\uFEFF'; // BOM para Excel reconhecer UTF-8
+  const blob = new Blob([bom+linhas], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`atestados_${hoje()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado com sucesso!');
+}
+
+function exportarExcel(){
+  if(typeof XLSX === 'undefined'){ showToast('Biblioteca Excel não carregada.','error'); return; }
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const ws = XLSX.utils.json_to_sheet(dados);
+  // Largura das colunas
+  ws['!cols']=[{wch:30},{wch:12},{wch:16},{wch:22},{wch:15},{wch:18},{wch:18},
+               {wch:6},{wch:8},{wch:22},{wch:12},{wch:22},{wch:12},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Atestados');
+  XLSX.writeFile(wb, `atestados_${hoje()}.xlsx`);
+  showToast('Excel exportado com sucesso!');
+}
+
+function exportarPDF(){
+  // Estratégia: abre janela de impressão com layout limpo
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const funcFiltro = document.getElementById('relFiltroFunc').value;
+  const titulo = funcFiltro ? `Relatório de Atestados — ${funcFiltro}` : 'Relatório Geral de Atestados';
+
+  const linhas = dados.map((r,i)=>`
+    <tr style="background:${i%2===0?'#fff':'#f5f8ff'}">
+      <td>${r['Funcionário']}</td><td>${r['Matrícula']}</td><td>${r['Setor']}</td>
+      <td>${r['Supervisor']}</td><td>${r['Data de Entrega']}</td>
+      <td>${r['Início Afastamento']}</td><td>${r['Fim Afastamento']}</td>
+      <td style="text-align:center;font-weight:700">${r['Dias']}</td>
+      <td>${r['CID']}</td><td>${r['Status']}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8"/><title>${titulo}</title>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:11px;color:#111;margin:20px}
+      h1{font-size:16px;color:#1a3a75;margin-bottom:4px}
+      .sub{font-size:11px;color:#888;margin-bottom:18px}
+      table{width:100%;border-collapse:collapse;margin-top:10px}
+      th{background:#1a3a75;color:#fff;padding:7px 8px;text-align:left;font-size:10px;text-transform:uppercase}
+      td{padding:6px 8px;border-bottom:1px solid #e0e4ec;font-size:11px}
+      .footer{margin-top:20px;font-size:10px;color:#aaa;text-align:right}
+    </style></head><body>
+    <h1>M.S Segurança e Serviços — ${titulo}</h1>
+    <div class="sub">Gerado em: ${new Date().toLocaleString('pt-BR')} · Total: ${dados.length} registro(s)</div>
+    <table>
+      <thead><tr>
+        <th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th>
+        <th>Entrega</th><th>Início</th><th>Fim</th><th>Dias</th><th>CID</th><th>Status</th>
+      </tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+    <div class="footer">M.S Segurança e Serviços · Sistema de Gestão de Atestados</div>
+    <script>window.onload=()=>{window.print();}<\/script>
+    </body></html>`;
+
+  const w = window.open('','_blank','width=1100,height=700');
+  w.document.write(html);
+  w.document.close();
+  showToast('Janela de impressão aberta!');
+}
+
+function hoje(){
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+// ══════════════════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════════════════
 function fmt(d){ if(!d)return'—'; const[y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }
 function showToast(msg,type='success'){
   const t=document.getElementById('toast');
   t.textContent=(type==='error'?'⚠️ ':'✅ ')+msg;
-  t.style.background=type==='error'?'#dc3545':'#28a745';
+  t.style.background=type==='error'?'#c62828':'#1e7e34';
   t.style.display='block'; t.style.animation='none'; void t.offsetWidth;
   t.style.animation='toastIn .3s ease both';
   setTimeout(()=>{ t.style.display='none'; },3200);
