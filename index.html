@@ -715,8 +715,9 @@ function doLogout(){
 }
 function switchTab(tab){
   activeTab = tab;
-  ['atestados','relatorios','supervisores'].forEach(t => {
-    const panel = document.getElementById(t + 'Panel');
+  const panelIds = { atestados: 'atestadosPanel', relatorios: 'relPanel', supervisores: 'supPanel' };
+  Object.entries(panelIds).forEach(([t, id]) => {
+    const panel = document.getElementById(id);
     if(panel) panel.style.display = t===tab ? 'block' : 'none';
   });
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
