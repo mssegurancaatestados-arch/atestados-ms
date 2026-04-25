@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>M.S Segurança e Serviços – Gestão de Atestados</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <!-- SheetJS para exportar Excel -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -144,6 +140,1076 @@
   .form-obs label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
   .form-obs textarea{width:100%;resize:vertical;font-family:'Barlow',sans-serif;padding:9px 13px;
     border:1.5px solid var(--gray-border);border-radius:9px;font-size:13px;background:#fafbff;outline:none;transition:border .2s}
+  .form-obs textarea:focus{border-color:var(--blue)}
+  .form-footer{padding:14px 26px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
+  .btn-cancel2{padding:10px 20px;background:#fff;border:1.5px solid #ddd;border-radius:9px;
+    cursor:pointer;font-size:13px;color:#666;font-family:'Barlow',sans-serif;font-weight:600;transition:all .2s}
+  .btn-cancel2:hover{border-color:#aaa;background:#f5f5f5}
+  .btn-save{padding:10px 26px;background:var(--green-btn);color:#fff;border:none;border-radius:9px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .2s}
+  .btn-save:hover{background:var(--green-btn-dark);transform:translateY(-1px)}
+
+  .table-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;animation:fadeUp .4s .1s ease both}
+  .table-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eef0f5}
+  .table-title{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .table-count{font-size:12px;color:#aaa;background:#f5f6fa;padding:4px 14px;border-radius:20px;font-weight:600}
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse}
+  thead th{padding:11px 16px;text-align:left;font-size:10px;font-weight:800;color:#999;
+    text-transform:uppercase;letter-spacing:.6px;background:#f8f9fb;border-bottom:1px solid #eef0f5;white-space:nowrap}
+  tbody td{padding:13px 16px;font-size:13px;color:#333;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}tbody tr:hover td{background:#f5f8ff}
+  .td-name{font-weight:700;color:var(--text)}
+  .td-mat{background:var(--blue-light);color:var(--blue-dark);padding:2px 9px;border-radius:5px;font-size:11px;font-family:monospace;font-weight:700}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700}
+  .badge-dot{width:7px;height:7px;border-radius:50%}
+  .badge.validado{background:var(--green-bg);color:var(--green)}
+  .badge.pendente{background:var(--yellow-bg);color:var(--yellow)}
+  .badge.recusado{background:var(--red-bg);color:var(--red)}
+  .btn-view{padding:5px 14px;background:var(--blue);color:#fff;border:none;border-radius:7px;
+    cursor:pointer;font-weight:700;font-size:12px;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-view:hover{background:var(--blue-dark);transform:translateY(-1px)}
+  .btn-analisar{background:var(--orange-btn);color:#fff}
+  .btn-analisar:hover{background:var(--orange-btn-dark)}
+  .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
+  .empty-state span{font-size:40px;display:block;margin-bottom:12px}
+
+  /* SUPERVISORES */
+  #supPanel{display:none;animation:fadeUp .3s ease both}
+  .sup-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden}
+  .sup-head{padding:20px 26px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:center}
+  .sup-head-title{font-size:16px;font-weight:800;color:var(--blue-dark)}
+  .sup-head-sub{font-size:12px;color:#999;margin-top:3px}
+  .sup-add-row{display:flex;gap:10px;padding:18px 26px;border-bottom:1px solid #eef0f5;background:var(--blue-light)}
+  .sup-add-row input{flex:1;padding:10px 14px;border:1.5px solid var(--blue-mid);border-radius:9px;
+    font-size:14px;font-family:'Barlow',sans-serif;outline:none;background:#fff;transition:border .2s}
+  .sup-add-row input:focus{border-color:var(--blue)}
+  .btn-sup-add{padding:10px 22px;background:var(--blue);color:#fff;border:none;border-radius:9px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;white-space:nowrap;transition:all .2s}
+  .btn-sup-add:hover{background:var(--blue-dark)}
+  .sup-list{list-style:none}
+  .sup-item{display:flex;align-items:center;gap:14px;padding:14px 26px;border-bottom:1px solid #f0f2f5;transition:background .15s}
+  .sup-item:last-child{border-bottom:none}.sup-item:hover{background:#f8f9fb}
+  .sup-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+  .sup-name-wrap{flex:1;min-width:0}
+  .sup-name-display{font-size:14px;font-weight:700;color:var(--text)}
+  .sup-name-count{font-size:11px;color:#aaa;margin-top:2px}
+  .sup-name-input{display:none;width:100%;padding:7px 11px;border:1.5px solid var(--blue);
+    border-radius:8px;font-size:14px;font-family:'Barlow',sans-serif;font-weight:700;outline:none;background:#fff}
+  .sup-actions{display:flex;gap:6px;flex-shrink:0}
+  .sup-actions button{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;
+    cursor:pointer;font-family:'Barlow',sans-serif;border:none;transition:all .15s;white-space:nowrap}
+  .btn-se{background:var(--blue-light);color:var(--blue-dark);border:1px solid var(--blue)}.btn-se:hover{background:var(--blue);color:#fff}
+  .btn-ss{background:var(--green-btn);color:#fff;display:none}.btn-ss:hover{background:var(--green-btn-dark)}
+  .btn-sc{background:#f0f2f7;color:#444;border:1px solid #ccc;display:none}.btn-sc:hover{background:#e0e0e0}
+  .btn-sd{background:var(--red-bg);color:var(--red)}.btn-sd:hover{background:var(--red-btn);color:#fff}
+  .sup-empty{padding:40px;text-align:center;color:#bbb;font-size:14px}
+  .sup-info-box{margin:20px 26px;padding:14px 18px;background:#fffbea;border:1px solid #ffe082;
+    border-radius:10px;font-size:13px;color:#5a4a00;line-height:1.6}
+
+  /* MODAL */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,.6);z-index:500;
+    align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;
+    box-shadow:0 32px 80px rgba(0,0,0,.35);animation:fadeUp .25s ease both}
+  .modal-header{padding:24px 28px 18px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:flex-start}
+  .modal-id{font-size:12px;color:#aaa;font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+  .modal-name{font-size:20px;font-weight:900;color:var(--blue-dark);margin-bottom:8px}
+  .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#bbb;padding:4px 8px;line-height:1;border-radius:6px;transition:all .15s}
+  .modal-close:hover{background:#f5f5f5;color:#555}
+  .modal-fields{display:grid;grid-template-columns:1fr 1fr;padding:16px 28px;gap:0}
+  .mf{padding:10px 0;border-bottom:1px solid #f5f6fa}
+  .mf:nth-child(odd){padding-right:16px}
+  .mf:nth-child(even){padding-left:16px;border-left:1px solid #f5f6fa}
+  .mf-label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
+  .mf-value{font-size:14px;color:#222;font-weight:600}
+  .modal-obs{padding:14px 28px}
+  .modal-obs label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px}
+  .modal-obs textarea{width:100%;padding:10px 13px;border:1.5px solid var(--gray-border);border-radius:9px;
+    font-size:13px;font-family:'Barlow',sans-serif;resize:vertical;outline:none;transition:border .2s}
+  .modal-obs textarea:focus{border-color:var(--blue)}
+  .modal-obs-view{padding:0 28px 16px;font-size:13px;color:#555}
+  .modal-obs-view strong{color:#888;font-weight:700}
+  .modal-actions{padding:16px 28px 24px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+  .btn-recusar{padding:11px 24px;background:var(--red-btn);color:#fff;border:none;
+    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-recusar:hover{background:var(--red-btn-dark);transform:translateY(-1px)}
+  .btn-validar{padding:11px 28px;background:var(--green-btn);color:#fff;border:none;border-radius:10px;
+    font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+  .btn-validar:hover{background:var(--green-btn-dark);transform:translateY(-1px)}
+  .btn-excluir{padding:11px 24px;background:#fff;color:var(--red);border:2px solid var(--red-btn);
+    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;margin-right:auto}
+  .btn-excluir:hover{background:var(--red-btn);color:#fff}
+
+  /* TOAST */
+  #toast{position:fixed;top:22px;right:22px;padding:13px 22px;border-radius:11px;color:#fff;
+    font-weight:700;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;display:none}
+
+  /* ════════════════════════════════════════
+     ABA RELATÓRIOS
+  ════════════════════════════════════════ */
+  #relPanel{display:none;animation:fadeUp .3s ease both}
+  .rel-top{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;margin-bottom:22px;
+    background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+  .rel-top label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .rel-top select,.rel-top input{padding:9px 13px;border:1.5px solid var(--gray-border);border-radius:9px;
+    font-size:13px;font-family:'Barlow',sans-serif;outline:none;transition:border .2s;background:#fafbff;min-width:180px}
+  .rel-top select:focus,.rel-top input:focus{border-color:var(--blue)}
+  .rel-top-actions{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-left:auto}
+
+  .rel-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+  .rel-sc{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.06);
+    border-left:5px solid var(--c);animation:fadeUp .35s ease both}
+  .rel-sc-val{font-size:26px;font-weight:900;color:var(--c);line-height:1}
+  .rel-sc-lbl{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+
+  .rel-func-card{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:22px}
+  .rel-func-header{padding:16px 24px;border-bottom:1px solid #eef0f5;display:flex;justify-content:space-between;align-items:center}
+  .rel-func-title{font-size:15px;font-weight:800;color:var(--blue-dark)}
+  .rel-func-sub{font-size:12px;color:#aaa;margin-top:2px}
+  .rel-func-list{list-style:none}
+  .rel-func-item{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid #f0f2f5;
+    cursor:pointer;transition:background .15s}
+  .rel-func-item:last-child{border-bottom:none}
+  .rel-func-item:hover{background:#f5f8ff}
+  .rel-func-item.selected{background:#e8eef8;border-left:4px solid var(--blue)}
+  .rel-func-avatar{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
+  .rel-func-info{flex:1;min-width:0}
+  .rel-func-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+  .rel-func-meta{font-size:12px;color:#999}
+  .rel-func-badges{display:flex;gap:6px;flex-shrink:0;align-items:center}
+  .rel-func-stat{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+  .rel-func-stat.v{background:var(--green-bg);color:var(--green)}
+  .rel-func-stat.p{background:var(--yellow-bg);color:var(--yellow)}
+  .rel-func-stat.r{background:var(--red-bg);color:var(--red)}
+  .rel-func-dias{font-size:22px;font-weight:900;color:var(--blue);min-width:52px;text-align:right}
+  .rel-func-dias-lbl{font-size:10px;color:#aaa;text-align:right;font-weight:600}
+
+  .rel-detail{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:22px;animation:slideIn .2s ease both}
+  .rel-detail-header{padding:18px 24px;background:linear-gradient(90deg,var(--blue-light),#fff);border-bottom:1px solid var(--blue-mid);display:flex;justify-content:space-between;align-items:center}
+  .rel-detail-name{font-size:17px;font-weight:900;color:var(--blue-dark)}
+  .rel-detail-mat{font-size:12px;color:#999;font-weight:700;margin-top:2px}
+  .rel-empty{padding:50px 24px;text-align:center;color:#ccc;font-size:14px}
+  .rel-empty span{font-size:36px;display:block;margin-bottom:10px}
+
+  @media(max-width:1100px){.rel-summary{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}.app-main{padding:18px 16px}.app-header,.nav-tabs{padding-left:16px;padding-right:16px}.rel-summary{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){
+    .stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}
+    .modal-fields{grid-template-columns:1fr}.mf:nth-child(even){border-left:none;padding-left:0}
+    .login-card{padding:36px 22px 28px;width:98vw}
+    thead th:nth-child(3),thead th:nth-child(4),tbody td:nth-child(3),tbody td:nth-child(4){display:none}
+    .rel-summary{grid-template-columns:1fr 1fr}.rel-top{flex-direction:column}
+    .rel-top-actions{margin-left:0;width:100%}
+  }
+
+  /* Print styles para PDF */
+  @media print {
+    .app-header,.nav-tabs,.rel-top,.rel-func-card,.no-print{display:none!important}
+    .rel-detail{box-shadow:none;border:1px solid #ccc}
+    body{background:#fff}
+    .app-main{padding:0;max-width:100%}
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Conectando ao Firebase…</div>
+  <div class="loading-sub" id="loadingSub">Aguarde</div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-ms"><span class="m">M</span><span class="dot">.</span><span class="s">S</span></div>
+      <div class="login-brand">Segurança e Serviços</div>
+    </div>
+    <div class="login-title">Gestão de Atestados</div>
+    <div class="login-sub" id="loginSub">Selecione seu perfil de acesso</div>
+    <button class="login-btn rh" id="btnRH" onclick="selectPerfil('rh')">
+      <span class="btn-icon">🗂️</span>
+      <div><div class="btn-label">Recursos Humanos</div><div class="btn-desc">Registrar, validar e configurar</div></div>
+    </button>
+    <button class="login-btn sup" id="btnSup" onclick="selectPerfil('supervisor')">
+      <span class="btn-icon">👁️</span>
+      <div><div class="btn-label">Supervisor</div><div class="btn-desc">Consultar atestados validados</div></div>
+    </button>
+    <div class="pwd-area" id="pwdArea">
+      <label>Senha de acesso</label>
+      <div class="pwd-wrap">
+        <input type="password" id="pwdInput" placeholder="Digite a senha…" onkeydown="if(event.key==='Enter')confirmarSenha()">
+        <button class="btn-entrar" onclick="confirmarSenha()">Entrar →</button>
+      </div>
+      <button class="btn-voltar" onclick="voltarPerfil()">← Voltar</button>
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-footer">Sistema interno · M.S Segurança e Serviços</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="app-header">
+    <div class="hdr-logo">
+      <div class="hdr-ms"><span class="m">M</span><span class="dot">.</span><span class="s">S</span></div>
+      <div class="hdr-divider"></div>
+      <div><div class="hdr-title">Gestão de Atestados</div><div class="hdr-sub">Segurança e Serviços</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-sync" id="syncDot" title="Sincronizado"></div>
+      <div class="hdr-role" id="roleLabel"></div>
+      <button class="hdr-btn" onclick="doLogout()">Sair →</button>
+    </div>
+  </header>
+
+  <div class="nav-tabs" id="navTabs" style="display:none">
+    <button class="nav-tab active" id="tab-atestados" onclick="switchTab('atestados')">📋 Atestados</button>
+    <button class="nav-tab" id="tab-relatorios" onclick="switchTab('relatorios')">📊 Relatórios</button>
+    <button class="nav-tab" id="tab-supervisores" onclick="switchTab('supervisores')">👤 Supervisores</button>
+  </div>
+
+  <main class="app-main">
+
+    <!-- ABA ATESTADOS -->
+    <div id="atestadosPanel">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍  Buscar por nome ou matrícula…" oninput="renderTable()">
+        <select id="filterStatus" onchange="renderTable()">
+          <option value="">Todos os status</option>
+          <option value="Validado">Validado</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Recusado">Recusado</option>
+        </select>
+        <select id="filterSup" onchange="renderTable()"><option value="">Todos os supervisores</option></select>
+        <button class="btn-add btn-blue" id="btnAdd" onclick="toggleForm()">+ Novo Atestado</button>
+      </div>
+
+      <div class="form-card" id="formCard" style="display:none">
+        <div class="form-head">📄 Registrar Novo Atestado</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Funcionário *</label><input id="f_funcionario" placeholder="Nome completo"></div>
+          <div class="form-field"><label>Matrícula *</label><input id="f_matricula" placeholder="MS-0000"></div>
+          <div class="form-field"><label>Setor</label>
+            <select id="f_setor"><option value="">Selecionar…</option>
+              <option>Vigilância</option><option>Limpeza</option><option>Portaria</option>
+              <option>Recepção</option><option>Manutenção</option><option>Administrativo</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Supervisor</label><select id="f_supervisor"><option value="">Selecionar…</option></select></div>
+          <div class="form-field"><label>Data de Entrega *</label><input id="f_dataEntrega" type="date"></div>
+          <div class="form-field"><label>Início do Afastamento *</label><input id="f_dataInicio" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Fim do Afastamento *</label><input id="f_dataFim" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Dias de Afastamento</label><input id="f_dias" readonly style="background:#f0f2f7;cursor:not-allowed"></div>
+          <div class="form-field"><label>CID</label><input id="f_cid" placeholder="Ex: J11"></div>
+          <div class="form-field"><label>Médico Responsável</label><input id="f_medico"></div>
+          <div class="form-field"><label>CRM</label><input id="f_crm" placeholder="00000-UF"></div>
+          <div class="form-field"><label>Hospital / Clínica</label><input id="f_hospital"></div>
+        </div>
+        <div class="form-obs">
+          <label>Observações</label>
+          <textarea id="f_obs" rows="3" placeholder="Observações adicionais…"></textarea>
+        </div>
+        <div class="form-footer">
+          <button class="btn-cancel2" onclick="toggleForm()">Cancelar</button>
+          <button class="btn-save" onclick="submitForm()">💾 Registrar Atestado</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-title" id="tableTitle">Atestados Recebidos</span>
+          <span class="table-count" id="tableCount">0 registro(s)</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th>
+              <th>Período</th><th style="text-align:center">Dias</th><th>Status</th><th>Ação</th>
+            </tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display:none"><span>📂</span>Nenhum atestado encontrado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA RELATÓRIOS -->
+    <div id="relPanel">
+      <!-- Filtros do relatório -->
+      <div class="rel-top no-print">
+        <div>
+          <label>Filtrar por Funcionário</label>
+          <select id="relFiltroFunc" onchange="renderRelatorio()">
+            <option value="">Todos os funcionários</option>
+          </select>
+        </div>
+        <div>
+          <label>Filtrar por Status</label>
+          <select id="relFiltroStatus" onchange="renderRelatorio()">
+            <option value="">Todos</option>
+            <option value="Validado">Validado</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Recusado">Recusado</option>
+          </select>
+        </div>
+        <div>
+          <label>Período — De</label>
+          <input type="date" id="relDe" onchange="renderRelatorio()">
+        </div>
+        <div>
+          <label>Período — Até</label>
+          <input type="date" id="relAte" onchange="renderRelatorio()">
+        </div>
+        <div class="rel-top-actions">
+          <button class="btn btn-purple" onclick="exportarPDF()">🖨️ Exportar PDF</button>
+          <button class="btn btn-green" onclick="exportarExcel()">📗 Excel</button>
+          <button class="btn btn-orange" onclick="exportarCSV()">📄 CSV</button>
+        </div>
+      </div>
+
+      <!-- Resumo geral -->
+      <div class="rel-summary" id="relSummary"></div>
+
+      <!-- Lista de funcionários agrupada -->
+      <div class="rel-func-card">
+        <div class="rel-func-header">
+          <div>
+            <div class="rel-func-title">👥 Funcionários com Atestados</div>
+            <div class="rel-func-sub" id="relFuncSub">Clique em um funcionário para ver o histórico detalhado</div>
+          </div>
+          <span class="table-count" id="relFuncCount">0</span>
+        </div>
+        <ul class="rel-func-list" id="relFuncList">
+          <li class="rel-empty"><span>📊</span>Nenhum dado disponível</li>
+        </ul>
+      </div>
+
+      <!-- Detalhe do funcionário selecionado -->
+      <div class="rel-detail" id="relDetail" style="display:none">
+        <div class="rel-detail-header">
+          <div>
+            <div class="rel-detail-name" id="relDetailName">—</div>
+            <div class="rel-detail-mat" id="relDetailMat">—</div>
+          </div>
+          <button class="btn btn-gray btn-sm no-print" onclick="fecharDetalhe()">✕ Fechar</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Data Entrega</th><th>Início</th><th>Fim</th><th style="text-align:center">Dias</th>
+              <th>CID</th><th>Médico</th><th>Status</th><th>Observação</th>
+            </tr></thead>
+            <tbody id="relDetailBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA SUPERVISORES -->
+    <div id="supPanel">
+      <div class="sup-card">
+        <div class="sup-head">
+          <div><div class="sup-head-title">👤 Gerenciar Supervisores</div>
+          <div class="sup-head-sub">Adicione, edite ou remova supervisores.</div></div>
+          <span class="table-count" id="supCount">0</span>
+        </div>
+        <div class="sup-info-box">💡 <strong>Dica:</strong> Ao renomear um supervisor, todos os atestados vinculados serão atualizados automaticamente.</div>
+        <div class="sup-add-row">
+          <input type="text" id="newSupName" placeholder="Nome do novo supervisor…" onkeydown="if(event.key==='Enter')addSupervisor()">
+          <button class="btn-sup-add" onclick="addSupervisor()">+ Adicionar</button>
+        </div>
+        <ul class="sup-list" id="supList"></ul>
+        <div id="supEmpty" class="sup-empty" style="display:none">Nenhum supervisor cadastrado.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div><div class="modal-id" id="mId"></div><div class="modal-name" id="mName"></div><div id="mBadge"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-fields" id="mFields"></div>
+    <div class="modal-obs" id="mObsArea" style="display:none">
+      <label>Observações do RH</label>
+      <textarea id="mObs" rows="3" placeholder="Adicionar observação…"></textarea>
+    </div>
+    <div class="modal-obs-view" id="mObsView" style="display:none">
+      <strong>Obs. do RH: </strong><span id="mObsText"></span>
+    </div>
+    <div class="modal-actions" id="mActions" style="display:none">
+      <button class="btn-excluir" id="btnExcluir" onclick="excluirAtestado()" style="display:none">🗑️ Excluir</button>
+      <button class="btn-recusar" id="btnRecusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
+      <button class="btn-validar" id="btnValidar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase SDK via CDN -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIGURAÇÃO FIREBASE
+// ══════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCL4zpu2yN8_TeY28lwOZ0akUy7peLLUVg",
+  authDomain:        "gerenciador-de-atestados.firebaseapp.com",
+  projectId:         "gerenciador-de-atestados",
+  storageBucket:     "gerenciador-de-atestados.appspot.com",
+  messagingSenderId: "452439292732",
+  appId:             "1:452439292732:web:3bbabf79b2ed1888643c39"
+};
+
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let db = null;
+let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestados';
+let atestados = [], supervisores = [];
+let unsubAtestados = null, unsubSupervisores = null;
+let relFuncSelecionado = null;
+
+const SC = {
+  Validado:{cls:'validado',dot:'#1e7e34'},
+  Pendente:{cls:'pendente',dot:'#856404'},
+  Recusado:{cls:'recusado',dot:'#721c24'}
+};
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  setLoading('Conectando ao Firebase…', 'Banco de dados em nuvem');
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    await db.collection('supervisores').limit(1).get();
+    hideLoading();
+    showLoginScreen();
+    startListeners();
+  } catch(err) {
+    hideLoading();
+    showLoginErr('Erro de conexão: ' + err.message + '. Verifique sua internet.');
+    showLoginScreen();
+  }
+});
+
+function startListeners() {
+  if(unsubAtestados) unsubAtestados();
+  unsubAtestados = db.collection('atestados')
+    .orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      atestados = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+      setSyncStatus(true);
+      if(currentRole){
+        populateFilterSup();
+        renderStats();
+        renderTable();
+        if(activeTab === 'relatorios') renderRelatorio();
+      }
+    }, () => setSyncStatus(false));
+
+  if(unsubSupervisores) unsubSupervisores();
+  unsubSupervisores = db.collection('supervisores')
+    .orderBy('nome','asc')
+    .onSnapshot(snap => {
+      supervisores = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+      setSyncStatus(true);
+      if(currentRole === 'rh' && activeTab === 'supervisores') renderSupList();
+      populateFilterSup(); populateFormSup();
+    }, () => setSyncStatus(false));
+}
+
+// ══════════════════════════════════════════════════
+//  UI HELPERS
+// ══════════════════════════════════════════════════
+function setLoading(msg, sub=''){
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('loadingText').textContent = msg;
+  document.getElementById('loadingSub').textContent = sub;
+}
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); }
+function showLoginScreen(){
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+function showLoginErr(msg){
+  const el = document.getElementById('loginErr');
+  el.textContent = '⚠️ ' + msg; el.style.display = 'block';
+}
+function setSyncStatus(ok){
+  const d = document.getElementById('syncDot');
+  if(d){ d.classList.toggle('off',!ok); d.title = ok ? '🟢 Sincronizado' : '🔴 Sem conexão'; }
+}
+
+// ══════════════════════════════════════════════════
+//  SENHAS DE ACESSO
+// ══════════════════════════════════════════════════
+const SENHAS = { rh: 'ms2025', supervisor: 'sup2025' };
+let perfilSelecionado = null;
+
+function selectPerfil(r){
+  perfilSelecionado = r;
+  document.getElementById('btnRH').style.opacity = r==='rh' ? '1' : '0.4';
+  document.getElementById('btnSup').style.opacity = r==='supervisor' ? '1' : '0.4';
+  document.getElementById('pwdArea').style.display = 'block';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginSub').textContent = r==='rh' ? 'Digite a senha do RH' : 'Digite a senha do Supervisor';
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdInput').focus();
+}
+function voltarPerfil(){
+  perfilSelecionado = null;
+  document.getElementById('btnRH').style.opacity = '1';
+  document.getElementById('btnSup').style.opacity = '1';
+  document.getElementById('pwdArea').style.display = 'none';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginSub').textContent = 'Selecione seu perfil de acesso';
+}
+function confirmarSenha(){
+  const pwd = document.getElementById('pwdInput').value;
+  if(pwd === SENHAS[perfilSelecionado]){
+    doLogin(perfilSelecionado);
+  } else {
+    const err = document.getElementById('loginErr');
+    err.textContent = '⚠️ Senha incorreta. Tente novamente.';
+    err.style.display = 'block';
+    document.getElementById('pwdInput').value = '';
+    document.getElementById('pwdInput').focus();
+  }
+}
+
+function doLogin(r){
+  currentRole = r;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('roleLabel').textContent = r==='rh' ? '🗂️ Recursos Humanos' : '👁️ Supervisor';
+  document.getElementById('navTabs').style.display = r==='rh' ? 'flex' : 'none';
+  document.getElementById('btnAdd').style.display = r==='rh' ? 'inline-block' : 'none';
+  document.getElementById('tableTitle').textContent = r==='rh' ? 'Atestados Recebidos' : 'Atestados Validados';
+  switchTab('atestados');
+}
+function doLogout(){
+  currentRole = null; formOpen = false; activeTab = 'atestados'; relFuncSelecionado = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('formCard').style.display = 'none';
+  ['searchInput','filterStatus','filterSup'].forEach(id => document.getElementById(id).value='');
+  voltarPerfil();
+}
+function switchTab(tab){
+  activeTab = tab;
+  const panelIds = { atestados: 'atestadosPanel', relatorios: 'relPanel', supervisores: 'supPanel' };
+  Object.entries(panelIds).forEach(([t, id]) => {
+    const panel = document.getElementById(id);
+    if(panel) panel.style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const el = document.getElementById('tab-'+tab); if(el) el.classList.add('active');
+  if(tab==='atestados'){ populateFilterSup(); renderStats(); renderTable(); }
+  else if(tab==='supervisores') renderSupList();
+  else if(tab==='relatorios') renderRelatorio();
+}
+
+// ══════════════════════════════════════════════════
+//  STATS & TABLE
+// ══════════════════════════════════════════════════
+function renderStats(){
+  const t=atestados.length, v=atestados.filter(a=>a.status==='Validado').length,
+        p=atestados.filter(a=>a.status==='Pendente').length, r=atestados.filter(a=>a.status==='Recusado').length;
+  document.getElementById('statsRow').innerHTML=[
+    {lbl:'Total',val:t,c:'#2B5BAD',icon:'📋'},
+    {lbl:'Validados',val:v,c:'#1e7e34',icon:'✅'},
+    {lbl:'Pendentes',val:p,c:'#e6a800',icon:'⏳'},
+    {lbl:'Recusados',val:r,c:'#c62828',icon:'❌'},
+  ].map(i=>`<div class="stat-card" style="--c:${i.c}"><div class="stat-icon">${i.icon}</div><div><div class="stat-val">${i.val}</div><div class="stat-lbl">${i.lbl}</div></div></div>`).join('');
+}
+function supNames(){ return supervisores.map(s=>s.nome||s); }
+function populateFilterSup(){
+  const sel=document.getElementById('filterSup'), cur=sel.value;
+  sel.innerHTML='<option value="">Todos os supervisores</option>'+supNames().map(n=>`<option${n===cur?' selected':''}>${n}</option>`).join('');
+}
+function populateFormSup(){
+  const sel=document.getElementById('f_supervisor'), cur=sel.value;
+  sel.innerHTML='<option value="">Selecionar…</option>'+supNames().map(n=>`<option${n===cur?' selected':''}>${n}</option>`).join('');
+}
+function renderTable(){
+  const search=document.getElementById('searchInput').value.toLowerCase(),
+        status=document.getElementById('filterStatus').value,
+        sup=document.getElementById('filterSup').value;
+  const fil=atestados.filter(a=>{
+    if(currentRole==='supervisor' && a.status==='Pendente') return false;
+    if(status && a.status!==status) return false;
+    if(sup && a.supervisor!==sup) return false;
+    if(search && !a.funcionario.toLowerCase().includes(search) && !(a.matricula||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  document.getElementById('tableCount').textContent=`${fil.length} registro(s)`;
+  const body=document.getElementById('tableBody'), empty=document.getElementById('emptyState');
+  if(!fil.length){ body.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  body.innerHTML=fil.map((a,i)=>{
+    const sc=SC[a.status]||SC.Pendente;
+    const isPending = currentRole==='rh' && a.status==='Pendente';
+    const btnClass = isPending ? 'btn-view btn-analisar' : 'btn-view';
+    const btnText = isPending ? '✎ Analisar' : '👁 Ver';
+    return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
+      <td class="td-name">${a.funcionario}</td>
+      <td><span class="td-mat">${a.matricula}</span></td>
+      <td>${a.setor||'—'}</td><td>${a.supervisor||'—'}</td>
+      <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
+      <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
+      <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
+      <td><button class="${btnClass}" onclick="openModal('${a._docId}')">${btnText}</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════
+//  FORM
+// ══════════════════════════════════════════════════
+function toggleForm(){
+  formOpen=!formOpen;
+  const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
+  card.style.display=formOpen?'block':'none';
+  btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado';
+  btn.classList.toggle('cancel',formOpen);
+  if(formOpen) populateFormSup(); else clearForm();
+}
+function clearForm(){
+  ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs']
+    .forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_setor').value='';
+  document.getElementById('f_supervisor').value='';
+}
+function calcDias(){
+  const ini=document.getElementById('f_dataInicio').value, fim=document.getElementById('f_dataFim').value;
+  if(ini&&fim){ const d=Math.round((new Date(fim)-new Date(ini))/86400000)+1; document.getElementById('f_dias').value=d>0?`${d} dia(s)`:''; }
+}
+async function submitForm(){
+  const v=id=>document.getElementById(id).value.trim();
+  if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega')||!v('f_dataInicio')||!v('f_dataFim'))
+    { showToast('Preencha os campos obrigatórios (*)','error'); return; }
+  const ini=v('f_dataInicio'), fim=v('f_dataFim');
+  const dias=Math.round((new Date(fim)-new Date(ini))/86400000)+1;
+  try {
+    await db.collection('atestados').add({
+      funcionario:v('f_funcionario'), matricula:v('f_matricula'), setor:v('f_setor'),
+      supervisor:v('f_supervisor'), dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
+      diasAfastamento:dias>0?dias:1, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
+      hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    toggleForm(); showToast('Atestado registrado com sucesso!');
+  } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════
+function openModal(docId){
+  const a=atestados.find(x=>x._docId===docId); if(!a) return;
+  currentId=docId;
+  const sc=SC[a.status]||SC.Pendente;
+  document.getElementById('mId').textContent=`Atestado · ${a.matricula}`;
+  document.getElementById('mName').textContent=a.funcionario;
+  document.getElementById('mBadge').innerHTML=`<span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span>`;
+  document.getElementById('mFields').innerHTML=[
+    ['Matrícula',a.matricula],['Setor',a.setor||'—'],['Supervisor',a.supervisor||'—'],
+    ['Data de Entrega',fmt(a.dataEntrega)],['Início',fmt(a.dataInicio)],
+    ['Fim',fmt(a.dataFim)],['Dias de Afastamento',`${a.diasAfastamento} dia(s)`],
+    ['CID',a.cid||'—'],['Médico',a.medico||'—'],['CRM',a.crm||'—'],
+  ].map(([l,v])=>`<div class="mf"><div class="mf-label">${l}</div><div class="mf-value">${v}</div></div>`).join('');
+  const oa=document.getElementById('mObsArea'), ov=document.getElementById('mObsView'),
+        ma=document.getElementById('mActions'), mo=document.getElementById('mObs');
+  oa.style.display=ov.style.display=ma.style.display='none';
+  if(currentRole==='rh'){
+    oa.style.display='block'; mo.value=a.observacao||'';
+    ma.style.display='flex';
+    document.getElementById('btnExcluir').style.display='inline-block';
+    document.getElementById('btnRecusar').style.display = a.status==='Pendente' ? 'inline-block' : 'none';
+    document.getElementById('btnValidar').style.display = a.status==='Pendente' ? 'inline-block' : 'none';
+  } else if(a.observacao){
+    ov.style.display='block'; document.getElementById('mObsText').textContent=a.observacao;
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(e){
+  if(!e||e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+async function validateAtestado(ns){
+  const obs=document.getElementById('mObs').value.trim();
+  try {
+    await db.collection('atestados').doc(currentId).update({
+      status:ns, observacao: obs||(atestados.find(a=>a._docId===currentId)||{}).observacao||''
+    });
+    document.getElementById('overlay').classList.remove('open');
+    showToast(ns==='Validado'?'Atestado validado!':'Atestado recusado.',ns==='Validado'?'success':'error');
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  SUPERVISORES
+// ══════════════════════════════════════════════════
+async function excluirAtestado(){
+  const a = atestados.find(x=>x._docId===currentId);
+  if(!a) return;
+  if(!confirm(`Excluir o atestado de "${a.funcionario}"?\nEsta ação não pode ser desfeita.`)) return;
+  try {
+    await db.collection('atestados').doc(currentId).delete();
+    document.getElementById('overlay').classList.remove('open');
+    showToast('Atestado excluído com sucesso.','error');
+  } catch(err){ showToast('Erro ao excluir: '+err.message,'error'); }
+}
+
+function renderSupList(){
+  const list=document.getElementById('supList'), empty=document.getElementById('supEmpty');
+  document.getElementById('supCount').textContent=`${supervisores.length} supervisor(es)`;
+  if(!supervisores.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  list.innerHTML=supervisores.map((s,i)=>{
+    const nome=s.nome||s, ini=nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const ct=atestados.filter(a=>a.supervisor===nome).length;
+    return `<li class="sup-item" id="si${i}">
+      <div class="sup-avatar">${ini}</div>
+      <div class="sup-name-wrap">
+        <div class="sup-name-display" id="sd${i}">${nome}</div>
+        <div class="sup-name-count">${ct} atestado(s) vinculado(s)</div>
+        <input class="sup-name-input" id="si_in${i}" value="${nome.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveSup(${i})">
+      </div>
+      <div class="sup-actions">
+        <button class="btn-se" id="se${i}" onclick="editSup(${i})">✏️ <span>Editar</span></button>
+        <button class="btn-ss" id="ss${i}" onclick="saveSup(${i})">✓ <span>Salvar</span></button>
+        <button class="btn-sc" id="sc${i}" onclick="cancelSup(${i})">✕</button>
+        <button class="btn-sd" onclick="delSup(${i})">🗑️ <span>Remover</span></button>
+      </div>
+    </li>`;
+  }).join('');
+}
+async function addSupervisor(){
+  const inp=document.getElementById('newSupName'), nome=inp.value.trim();
+  if(!nome){ showToast('Digite o nome do supervisor.','error'); return; }
+  if(supervisores.some(s=>(s.nome||s).toLowerCase()===nome.toLowerCase()))
+    { showToast('Supervisor já cadastrado.','error'); return; }
+  try {
+    await db.collection('supervisores').add({nome, createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    inp.value=''; showToast(`Supervisor "${nome}" adicionado!`);
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+function editSup(i){
+  document.getElementById(`sd${i}`).style.display='none';
+  document.getElementById(`si_in${i}`).style.display='block';
+  document.getElementById(`se${i}`).style.display='none';
+  document.getElementById(`ss${i}`).style.display='inline-block';
+  document.getElementById(`sc${i}`).style.display='inline-block';
+  document.getElementById(`si_in${i}`).focus();
+}
+function cancelSup(i){
+  const nome=supervisores[i].nome||supervisores[i];
+  document.getElementById(`si_in${i}`).value=nome;
+  document.getElementById(`sd${i}`).style.display='block';
+  document.getElementById(`si_in${i}`).style.display='none';
+  document.getElementById(`se${i}`).style.display='inline-block';
+  document.getElementById(`ss${i}`).style.display='none';
+  document.getElementById(`sc${i}`).style.display='none';
+}
+async function saveSup(i){
+  const newName=document.getElementById(`si_in${i}`).value.trim();
+  if(!newName){ showToast('Nome não pode ser vazio.','error'); return; }
+  const sup=supervisores[i], oldName=sup.nome||sup;
+  if(newName===oldName){ cancelSup(i); return; }
+  if(supervisores.some((s,j)=>j!==i&&(s.nome||s).toLowerCase()===newName.toLowerCase()))
+    { showToast('Já existe supervisor com esse nome.','error'); return; }
+  try {
+    const batch=db.batch();
+    batch.update(db.collection('supervisores').doc(sup._docId),{nome:newName});
+    const snap=await db.collection('atestados').where('supervisor','==',oldName).get();
+    snap.docs.forEach(d=>batch.update(d.ref,{supervisor:newName}));
+    await batch.commit();
+    showToast(`Supervisor renomeado para "${newName}"`);
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+async function delSup(i){
+  const sup=supervisores[i], nome=sup.nome||sup;
+  const ct=atestados.filter(a=>a.supervisor===nome).length;
+  if(!confirm(ct>0?`"${nome}" tem ${ct} atestado(s) vinculado(s).\nRemover mesmo assim?`:`Remover "${nome}"?`)) return;
+  try {
+    await db.collection('supervisores').doc(sup._docId).delete();
+    showToast('Supervisor removido.','error');
+  } catch(err){ showToast('Erro: '+err.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════
+//  RELATÓRIOS POR FUNCIONÁRIO
+// ══════════════════════════════════════════════════
+function getAtestadosFiltrados(){
+  const func  = document.getElementById('relFiltroFunc')?.value  || '';
+  const status= document.getElementById('relFiltroStatus')?.value|| '';
+  const de    = document.getElementById('relDe')?.value          || '';
+  const ate   = document.getElementById('relAte')?.value         || '';
+  return atestados.filter(a=>{
+    if(func && a.funcionario !== func) return false;
+    if(status && a.status !== status)  return false;
+    if(de  && a.dataInicio && a.dataInicio < de)  return false;
+    if(ate && a.dataFim    && a.dataFim    > ate)  return false;
+    return true;
+  });
+}
+
+function renderRelatorio(){
+  const fil = getAtestadosFiltrados();
+
+  // Popula select de funcionários
+  const funcSel = document.getElementById('relFiltroFunc');
+  const curFunc = funcSel.value;
+  const funcNomes = [...new Set(atestados.map(a=>a.funcionario))].sort();
+  funcSel.innerHTML = '<option value="">Todos os funcionários</option>' +
+    funcNomes.map(n=>`<option${n===curFunc?' selected':''}>${n}</option>`).join('');
+
+  // Summary cards
+  const total = fil.length;
+  const valid = fil.filter(a=>a.status==='Validado').length;
+  const pend  = fil.filter(a=>a.status==='Pendente').length;
+  const recu  = fil.filter(a=>a.status==='Recusado').length;
+  const dias  = fil.reduce((s,a)=>s+(+a.diasAfastamento||0),0);
+  document.getElementById('relSummary').innerHTML=[
+    {lbl:'Total de Atestados',val:total,c:'#2B5BAD'},
+    {lbl:'Validados',         val:valid, c:'#1e7e34'},
+    {lbl:'Pendentes',         val:pend,  c:'#856404'},
+    {lbl:'Recusados',         val:recu,  c:'#c62828'},
+    {lbl:'Dias Afastamento',  val:dias,  c:'#7b2fbe'},
+  ].map(i=>`<div class="rel-sc" style="--c:${i.c}"><div class="rel-sc-val">${i.val}</div><div class="rel-sc-lbl">${i.lbl}</div></div>`).join('');
+
+  // Agrupa por funcionário
+  const grupos = {};
+  fil.forEach(a=>{
+    if(!grupos[a.funcionario]) grupos[a.funcionario]={matricula:a.matricula,setor:a.setor,lista:[]};
+    grupos[a.funcionario].lista.push(a);
+  });
+
+  const keys = Object.keys(grupos).sort();
+  document.getElementById('relFuncCount').textContent = keys.length;
+  document.getElementById('relFuncSub').textContent = keys.length
+    ? 'Clique em um funcionário para ver o histórico detalhado'
+    : 'Nenhum funcionário encontrado com os filtros aplicados';
+
+  const ul = document.getElementById('relFuncList');
+  if(!keys.length){
+    ul.innerHTML='<li class="rel-empty"><span>📊</span>Nenhum dado disponível</li>';
+    document.getElementById('relDetail').style.display='none';
+    return;
+  }
+
+  ul.innerHTML = keys.map(nome=>{
+    const g = grupos[nome];
+    const v = g.lista.filter(a=>a.status==='Validado').length;
+    const p = g.lista.filter(a=>a.status==='Pendente').length;
+    const r = g.lista.filter(a=>a.status==='Recusado').length;
+    const d = g.lista.reduce((s,a)=>s+(+a.diasAfastamento||0),0);
+    const ini = nome.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const sel = relFuncSelecionado===nome ? ' selected' : '';
+    return `<li class="rel-func-item${sel}" onclick="selecionarFuncionario('${nome.replace(/'/g,"\\'")}')">
+      <div class="rel-func-avatar">${ini}</div>
+      <div class="rel-func-info">
+        <div class="rel-func-name">${nome}</div>
+        <div class="rel-func-meta">${g.matricula||'—'} · ${g.setor||'—'} · ${g.lista.length} atestado(s)</div>
+      </div>
+      <div class="rel-func-badges">
+        ${v?`<span class="rel-func-stat v">✅ ${v}</span>`:''}
+        ${p?`<span class="rel-func-stat p">⏳ ${p}</span>`:''}
+        ${r?`<span class="rel-func-stat r">❌ ${r}</span>`:''}
+      </div>
+      <div>
+        <div class="rel-func-dias">${d}</div>
+        <div class="rel-func-dias-lbl">dias</div>
+      </div>
+    </li>`;
+  }).join('');
+
+  // Se havia selecionado, mostra detalhe
+  if(relFuncSelecionado && grupos[relFuncSelecionado]){
+    mostrarDetalhe(relFuncSelecionado, grupos[relFuncSelecionado]);
+  } else {
+    document.getElementById('relDetail').style.display='none';
+  }
+}
+
+function selecionarFuncionario(nome){
+  relFuncSelecionado = nome;
+  const fil = getAtestadosFiltrados();
+  const grupos = {};
+  fil.forEach(a=>{
+    if(!grupos[a.funcionario]) grupos[a.funcionario]={matricula:a.matricula,setor:a.setor,lista:[]};
+    grupos[a.funcionario].lista.push(a);
+  });
+  // Atualiza destaque
+  document.querySelectorAll('.rel-func-item').forEach(el=>el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  if(grupos[nome]) mostrarDetalhe(nome, grupos[nome]);
+}
+
+function mostrarDetalhe(nome, g){
+  document.getElementById('relDetail').style.display='block';
+  document.getElementById('relDetailName').textContent=nome;
+  document.getElementById('relDetailMat').textContent=`Matrícula: ${g.matricula||'—'} · Setor: ${g.setor||'—'}`;
+  const sorted = [...g.lista].sort((a,b)=>(b.dataInicio||'').localeCompare(a.dataInicio||''));
+  document.getElementById('relDetailBody').innerHTML = sorted.map((a,i)=>{
+    const sc = SC[a.status]||SC.Pendente;
+    return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
+      <td>${fmt(a.dataEntrega)}</td>
+      <td>${fmt(a.dataInicio)}</td>
+      <td>${fmt(a.dataFim)}</td>
+      <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
+      <td>${a.cid||'—'}</td>
+      <td style="font-size:12px">${a.medico||'—'}</td>
+      <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
+      <td style="font-size:12px;color:#777">${a.observacao||'—'}</td>
+    </tr>`;
+  }).join('');
+  // Scroll suave até o detalhe
+  setTimeout(()=>document.getElementById('relDetail').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function fecharDetalhe(){
+  relFuncSelecionado = null;
+  document.getElementById('relDetail').style.display='none';
+  document.querySelectorAll('.rel-func-item').forEach(el=>el.classList.remove('selected'));
+}
+
+// ══════════════════════════════════════════════════
+//  EXPORTAÇÕES
+// ══════════════════════════════════════════════════
+function dadosParaExportar(){
+  const fil = getAtestadosFiltrados();
+  return fil.map(a=>({
+    'Funcionário'      : a.funcionario||'',
+    'Matrícula'        : a.matricula||'',
+    'Setor'            : a.setor||'',
+    'Supervisor'       : a.supervisor||'',
+    'Data de Entrega'  : fmt(a.dataEntrega),
+    'Início Afastamento': fmt(a.dataInicio),
+    'Fim Afastamento'  : fmt(a.dataFim),
+    'Dias'             : a.diasAfastamento||0,
+    'CID'              : a.cid||'',
+    'Médico'           : a.medico||'',
+    'CRM'              : a.crm||'',
+    'Hospital/Clínica' : a.hospital||'',
+    'Status'           : a.status||'',
+    'Observações'      : a.observacao||''
+  }));
+}
+
+function exportarCSV(){
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const cabecalho = Object.keys(dados[0]);
+  const linhas = [cabecalho, ...dados.map(r=>cabecalho.map(c=>`"${String(r[c]).replace(/"/g,'""')}"`))]
+    .map(r=>r.join(';')).join('\r\n');
+  const bom = '\uFEFF'; // BOM para Excel reconhecer UTF-8
+  const blob = new Blob([bom+linhas], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`atestados_${hoje()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado com sucesso!');
+}
+
+function exportarExcel(){
+  if(typeof XLSX === 'undefined'){ showToast('Biblioteca Excel não carregada.','error'); return; }
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const ws = XLSX.utils.json_to_sheet(dados);
+  // Largura das colunas
+  ws['!cols']=[{wch:30},{wch:12},{wch:16},{wch:22},{wch:15},{wch:18},{wch:18},
+               {wch:6},{wch:8},{wch:22},{wch:12},{wch:22},{wch:12},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Atestados');
+  XLSX.writeFile(wb, `atestados_${hoje()}.xlsx`);
+  showToast('Excel exportado com sucesso!');
+}
+
+function exportarPDF(){
+  // Estratégia: abre janela de impressão com layout limpo
+  const dados = dadosParaExportar();
+  if(!dados.length){ showToast('Nenhum dado para exportar.','error'); return; }
+  const funcFiltro = document.getElementById('relFiltroFunc').value;
+  const titulo = funcFiltro ? `Relatório de Atestados — ${funcFiltro}` : 'Relatório Geral de Atestados';
+
+  const linhas = dados.map((r,i)=>`
+    <tr style="background:${i%2===0?'#fff':'#f5f8ff'}">
+      <td>${r['Funcionário']}</td><td>${r['Matrícula']}</td><td>${r['Setor']}</td>
+      <td>${r['Supervisor']}</td><td>${r['Data de Entrega']}</td>
+      <td>${r['Início Afastamento']}</td><td>${r['Fim Afastamento']}</td>
+      <td style="text-align:center;font-weight:700">${r['Dias']}</td>
+      <td>${r['CID']}</td><td>${r['Status']}</td>
+    </tr>`).join('');
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head>
+    <meta charset="UTF-8"/><title>${titulo}</title>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:11px;color:#111;margin:20px}
+      h1{font-size:16px;color:#1a3a75;margin-bottom:4px}
+      .sub{font-size:11px;color:#888;margin-bottom:18px}
+      table{width:100%;border-collapse:collapse;margin-top:10px}
+      th{background:#1a3a75;color:#fff;padding:7px 8px;text-align:left;font-size:10px;text-transform:uppercase}
+      td{padding:6px 8px;border-bottom:1px solid #e0e4ec;font-size:11px}
+      .footer{margin-top:20px;font-size:10px;color:#aaa;text-align:right}
+    </style></head><body>
+    <h1>M.S Segurança e Serviços — ${titulo}</h1>
+    <div class="sub">Gerado em: ${new Date().toLocaleString('pt-BR')} · Total: ${dados.length} registro(s)</div>
+    <table>
+      <thead><tr>
+        <th>Funcionário</th><th>Matrícula</th><th>Setor</th><th>Supervisor</th>
+        <th>Entrega</th><th>Início</th><th>Fim</th><th>Dias</th><th>CID</th><th>Status</th>
+      </tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+    <div class="footer">M.S Segurança e Serviços · Sistema de Gestão de Atestados</div>
+    <script>window.onload=()=>{window.print();}<\/script>
+    </body></html>`;
+
+  const w = window.open('','_blank','width=1100,height=700');
+  w.document.write(html);
+  w.document.close();
+  showToast('Janela de impressão aberta!');
+}
+
+function hoje(){
+  return new Date().toISOString().slice(0,10).replace(/-/g,'');
+}
+
+// ══════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════
+function fmt(d){ if(!d)return'—'; const[y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='error'?'⚠️ ':'✅ ')+msg;
+  t.style.background=type==='error'?'#c62828':'#1e7e34';
+  t.style.display='block'; t.style.animation='none'; void t.offsetWidth;
+  t.style.animation='toastIn .3s ease both';
+  setTimeout(()=>{ t.style.display='none'; },3200);
+}
+</script>
+</body>
+</html>    border:1.5px solid var(--gray-border);border-radius:9px;font-size:13px;background:#fafbff;outline:none;transition:border .2s}
   .form-obs textarea:focus{border-color:var(--blue)}
   .form-footer{padding:14px 26px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
   .btn-cancel2{padding:10px 20px;background:#fff;border:1.5px solid #ddd;border-radius:9px;
