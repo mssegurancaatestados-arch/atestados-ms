@@ -187,6 +187,13 @@
     border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;
     transition:all .15s;margin-right:auto}
   .btn-excluir:hover{background:#dc3545;color:#fff;border-color:#dc3545}
+  .btn-editar{padding:11px 22px;background:#fff3e0;color:#e65100;border:1.5px solid #ffcc80;
+    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;
+    transition:all .15s}
+  .btn-editar:hover{background:#e65100;color:#fff;border-color:#e65100}
+  .btn-edit-row{padding:5px 10px;background:#fff3e0;color:#e65100;border:none;border-radius:7px;
+    cursor:pointer;font-weight:700;font-size:12px;font-family:'Barlow',sans-serif;transition:all .15s;margin-left:4px}
+  .btn-edit-row:hover{background:#e65100;color:#fff}
   .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
   .empty-state span{font-size:40px;display:block;margin-bottom:12px}
 
@@ -617,7 +624,7 @@
         </div>
         <div class="form-footer">
           <button class="btn-cancel2" onclick="toggleForm()">Cancelar</button>
-          <button class="btn-save" onclick="submitForm()">💾 Registrar Atestado</button>
+          <button class="btn-save" id="btnSave" onclick="submitForm()">💾 Registrar Atestado</button>
         </div>
       </div>
 
@@ -795,6 +802,7 @@
     </div>
     <div class="modal-actions"  id="mActions" style="display:none">
       <button class="btn-excluir" id="mBtnExcluir" onclick="deleteAtestadoModal()">🗑️ Excluir</button>
+      <button class="btn-editar"  id="mBtnEditar"  onclick="editAtestado(currentId)">✏️ Editar</button>
       <button class="btn-recusar" id="mBtnRecusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
       <button class="btn-validar" id="mBtnValidar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
     </div>
@@ -883,6 +891,7 @@ function startRealtimeListeners(){
 //  STATE
 // ══════════════════════════════════════════════════════════
 let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestados';
+let editingId = null; // docId do atestado sendo editado (null = novo)
 let atestados    = [];
 let supervisores = [];
 let cargos       = [];
@@ -1078,6 +1087,9 @@ function renderTable(){
     const delBtn=currentRole==='rh'
       ?`<button class="btn-del-row" onclick="deleteAtestado('${a._docId}','${a.funcionario.replace(/'/g,"\\'")}',event)" title="Excluir registro">🗑️</button>`
       :'';
+    const editBtn=currentRole==='rh'
+      ?`<button class="btn-edit-row" onclick="editAtestado('${a._docId}',event)" title="Editar atestado">✏️</button>`
+      :'';
     return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
       <td class="td-name">${a.funcionario}</td>
       <td><span class="td-mat">${a.matricula}</span></td>
@@ -1088,7 +1100,7 @@ function renderTable(){
       <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
       <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
       <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
-      <td style="white-space:nowrap"><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button>${delBtn}</td>
+      <td style="white-space:nowrap"><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button>${editBtn}${delBtn}</td>
     </tr>`;
   }).join('');
 }
@@ -1096,10 +1108,13 @@ function renderTable(){
 // ── FORM ──────────────────────────────────────────────────
 function toggleForm(){
   formOpen=!formOpen;
+  editingId=null; // sempre reseta ao abrir/cancelar
   const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
   card.style.display=formOpen?'block':'none';
   btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado';
   btn.classList.toggle('cancel',formOpen);
+  document.getElementById('formHeadLabel').textContent='📄 Registrar Novo Atestado';
+  document.getElementById('btnSave').textContent='💾 Registrar Atestado';
   if(formOpen){ populateFormSup(); populateFormCargo(); setTipoDoc('Atestado'); } else clearForm();
 }
 function clearForm(){
@@ -1125,21 +1140,87 @@ async function submitForm(){
   const declQtd=v('f_declQtd');
   const declUnidade=document.getElementById('f_declUnidade').value;
   const declResumo=declQtd?`${declQtd} ${declUnidade}`:'';
-  const novo = {
+  const dados = {
     tipoDoc,
     funcionario:v('f_funcionario'), matricula:v('f_matricula'),
     cargo:v('f_cargo'), setor:v('f_setor'), supervisor:v('f_supervisor'),
     dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
     diasAfastamento:dias>0?dias:1, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
-    hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
-    ...(tipoDoc==='Declaração' && declQtd ? { declQtd, declUnidade, declResumo } : {}),
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    hospital:v('f_hospital'), observacao:v('f_obs'),
+    ...(tipoDoc==='Declaração' && declQtd ? { declQtd, declUnidade, declResumo } : { declQtd:'', declUnidade:'horas', declResumo:'' }),
   };
   try {
-    await db.collection('atestados').add(novo);
-    toggleForm();
-    showToast(tipoDoc==='Declaração'?'Declaração registrada com sucesso!':'Atestado registrado com sucesso!');
+    if(editingId){
+      // ── EDITAR atestado existente ───────────────────────
+      await db.collection('atestados').doc(editingId).update(dados);
+      editingId=null;
+      formOpen=false;
+      document.getElementById('formCard').style.display='none';
+      const btn=document.getElementById('btnAdd');
+      btn.textContent='+ Novo Atestado'; btn.classList.remove('cancel');
+      document.getElementById('btnSave').textContent='💾 Registrar Atestado';
+      clearForm();
+      showToast('Atestado atualizado com sucesso!');
+    } else {
+      // ── NOVO atestado ────────────────────────────────────
+      dados.status='Pendente';
+      dados.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('atestados').add(dados);
+      toggleForm();
+      showToast(tipoDoc==='Declaração'?'Declaração registrada com sucesso!':'Atestado registrado com sucesso!');
+    }
   } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
+}
+
+// ── EDITAR ATESTADO ───────────────────────────────────────
+function editAtestado(docId, evt){
+  if(evt) evt.stopPropagation();
+  const a=atestados.find(x=>x._docId===docId); if(!a) return;
+  // Fechar modal se estiver aberto
+  document.getElementById('overlay').classList.remove('open');
+  // Ir para aba atestados e abrir formulário
+  switchTab('atestados');
+  editingId=docId;
+  formOpen=true;
+  populateFormSup(); populateFormCargo();
+
+  // Pre-preencher todos os campos
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.value=val||''; };
+  set('f_funcionario', a.funcionario);
+  set('f_matricula',   a.matricula);
+  set('f_cargo',       a.cargo);
+  set('f_setor',       a.setor);
+  set('f_supervisor',  a.supervisor);
+  set('f_dataEntrega', a.dataEntrega);
+  set('f_dataInicio',  a.dataInicio);
+  set('f_dataFim',     a.dataFim);
+  set('f_cid',         a.cid);
+  set('f_medico',      a.medico);
+  set('f_crm',         a.crm);
+  set('f_hospital',    a.hospital);
+  set('f_obs',         a.observacao);
+  calcDias();
+
+  // Tipo de documento
+  const isDecl = a.tipoDoc === 'Declaração';
+  setTipoDoc(isDecl ? 'Declaração' : 'Atestado');
+  if(isDecl){
+    set('f_declQtd',    a.declQtd);
+    set('f_declUnidade',a.declUnidade||'horas');
+    set('f_declResumo', a.declResumo);
+    if(document.getElementById('f_declUnidade').value !== (a.declUnidade||'horas'))
+      document.getElementById('f_declUnidade').value = a.declUnidade||'horas';
+  }
+
+  // UI do formulário
+  const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
+  card.style.display='block';
+  btn.textContent='✕ Cancelar'; btn.classList.add('cancel');
+  document.getElementById('formHeadLabel').textContent=`✏️ Editando Atestado — ${a.funcionario}`;
+  document.getElementById('btnSave').textContent='💾 Salvar Alterações';
+
+  // Rolar até o formulário
+  card.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 // ── MODAL ─────────────────────────────────────────────────
