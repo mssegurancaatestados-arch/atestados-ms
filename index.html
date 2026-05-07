@@ -187,13 +187,6 @@
     border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;
     transition:all .15s;margin-right:auto}
   .btn-excluir:hover{background:#dc3545;color:#fff;border-color:#dc3545}
-  .btn-editar{padding:11px 22px;background:#fff3e0;color:#e65100;border:1.5px solid #ffcc80;
-    border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;
-    transition:all .15s}
-  .btn-editar:hover{background:#e65100;color:#fff;border-color:#e65100}
-  .btn-edit-row{padding:5px 10px;background:#fff3e0;color:#e65100;border:none;border-radius:7px;
-    cursor:pointer;font-weight:700;font-size:12px;font-family:'Barlow',sans-serif;transition:all .15s;margin-left:4px}
-  .btn-edit-row:hover{background:#e65100;color:#fff}
   .empty-state{padding:60px 24px;text-align:center;color:#bbb;font-size:15px}
   .empty-state span{font-size:40px;display:block;margin-bottom:12px}
 
@@ -406,7 +399,7 @@
   .decl-block.visible{display:block}
   .decl-block-title{font-size:11px;font-weight:800;color:#6c3fc5;text-transform:uppercase;
     letter-spacing:.6px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-  .decl-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end}
+  .decl-inner{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:end}
   .decl-inner label{display:block;font-size:10px;font-weight:700;color:#888;
     text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
   .decl-inner input,.decl-inner select{width:100%;padding:9px 13px;border:1.5px solid #c5a8f0;
@@ -452,6 +445,7 @@
 
   @media(max-width:900px){
     .stats-row,.form-grid{grid-template-columns:repeat(2,1fr)}
+    .decl-inner{grid-template-columns:1fr 1fr !important}
     .app-main{padding:18px 16px} .app-header,.nav-tabs{padding-left:16px;padding-right:16px}
   }
   @media(max-width:600px){
@@ -579,16 +573,11 @@
           <div class="form-field"><label>Cargo</label>
             <select id="f_cargo"><option value="">Selecionar…</option></select>
           </div>
-          <div class="form-field"><label>Setor</label>
-            <select id="f_setor"><option value="">Selecionar…</option>
-              <option>Vigilância</option><option>Limpeza</option><option>Portaria</option>
-              <option>Recepção</option><option>Manutenção</option><option>Administrativo</option>
-            </select>
-          </div>
+          <input type="hidden" id="f_setor" value="">
           <div class="form-field"><label>Supervisor</label><select id="f_supervisor"><option value="">Selecionar…</option></select></div>
           <div class="form-field"><label>Data de Entrega *</label><input id="f_dataEntrega" type="date"></div>
-          <div class="form-field"><label>Início do Afastamento *</label><input id="f_dataInicio" type="date" onchange="calcDias()"></div>
-          <div class="form-field"><label>Fim do Afastamento *</label><input id="f_dataFim" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Início do Afastamento</label><input id="f_dataInicio" type="date" onchange="calcDias()"></div>
+          <div class="form-field"><label>Fim do Afastamento</label><input id="f_dataFim" type="date" onchange="calcDias()"></div>
           <div class="form-field"><label>Dias de Afastamento</label><input id="f_dias" readonly style="background:#f0f2f7;cursor:not-allowed"></div>
           <div class="form-field"><label>CID</label><input id="f_cid" placeholder="Ex: J11"></div>
           <div class="form-field"><label>Médico Responsável</label><input id="f_medico"></div>
@@ -598,17 +587,22 @@
           <!-- BLOCO DECLARAÇÃO (visível apenas quando tipo = Declaração) -->
           <div class="decl-block" id="declBlock">
             <div class="decl-block-title">📝 Dados da Declaração <span class="decl-tag">opcional</span></div>
-            <div class="decl-inner">
+            <div class="decl-inner" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr">
               <div>
-                <label>Duração</label>
-                <input type="number" id="f_declQtd" min="1" placeholder="Ex: 4" oninput="updateDeclResumo()">
+                <label>Data da Declaração</label>
+                <input type="date" id="f_declData" onchange="updateDeclResumo()">
               </div>
               <div>
-                <label>Unidade</label>
-                <select id="f_declUnidade" onchange="updateDeclResumo()">
-                  <option value="horas">Horas</option>
-                  <option value="dias">Dias</option>
-                </select>
+                <label>Hora De</label>
+                <input type="time" id="f_declHoraDe" onchange="updateDeclResumo()">
+              </div>
+              <div>
+                <label>Hora Até</label>
+                <input type="time" id="f_declHoraAte" onchange="updateDeclResumo()">
+              </div>
+              <div>
+                <label>Total (horas)</label>
+                <input id="f_declQtd" readonly placeholder="—" style="background:#f0f2f7;cursor:not-allowed;color:#6c3fc5;font-weight:700">
               </div>
               <div>
                 <label>Resumo</label>
@@ -624,7 +618,7 @@
         </div>
         <div class="form-footer">
           <button class="btn-cancel2" onclick="toggleForm()">Cancelar</button>
-          <button class="btn-save" id="btnSave" onclick="submitForm()">💾 Registrar Atestado</button>
+          <button class="btn-save" onclick="submitForm()">💾 Registrar Atestado</button>
         </div>
       </div>
 
@@ -802,7 +796,6 @@
     </div>
     <div class="modal-actions"  id="mActions" style="display:none">
       <button class="btn-excluir" id="mBtnExcluir" onclick="deleteAtestadoModal()">🗑️ Excluir</button>
-      <button class="btn-editar"  id="mBtnEditar"  onclick="editAtestado(currentId)">✏️ Editar</button>
       <button class="btn-recusar" id="mBtnRecusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
       <button class="btn-validar" id="mBtnValidar" onclick="validateAtestado('Validado')">✓ Validar Atestado</button>
     </div>
@@ -891,7 +884,6 @@ function startRealtimeListeners(){
 //  STATE
 // ══════════════════════════════════════════════════════════
 let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestados';
-let editingId = null; // docId do atestado sendo editado (null = novo)
 let atestados    = [];
 let supervisores = [];
 let cargos       = [];
@@ -1087,9 +1079,6 @@ function renderTable(){
     const delBtn=currentRole==='rh'
       ?`<button class="btn-del-row" onclick="deleteAtestado('${a._docId}','${a.funcionario.replace(/'/g,"\\'")}',event)" title="Excluir registro">🗑️</button>`
       :'';
-    const editBtn=currentRole==='rh'
-      ?`<button class="btn-edit-row" onclick="editAtestado('${a._docId}',event)" title="Editar atestado">✏️</button>`
-      :'';
     return `<tr style="background:${i%2===0?'#fff':'#f9fafb'}">
       <td class="td-name">${a.funcionario}</td>
       <td><span class="td-mat">${a.matricula}</span></td>
@@ -1100,7 +1089,7 @@ function renderTable(){
       <td style="font-size:12px">${fmt(a.dataInicio)} – ${fmt(a.dataFim)}</td>
       <td style="text-align:center;font-weight:800">${a.diasAfastamento}d</td>
       <td><span class="badge ${sc.cls}"><span class="badge-dot" style="background:${sc.dot}"></span>${a.status}</span></td>
-      <td style="white-space:nowrap"><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button>${editBtn}${delBtn}</td>
+      <td style="white-space:nowrap"><button class="btn-view" onclick="openModal('${a._docId}')">${btn}</button>${delBtn}</td>
     </tr>`;
   }).join('');
 }
@@ -1108,119 +1097,74 @@ function renderTable(){
 // ── FORM ──────────────────────────────────────────────────
 function toggleForm(){
   formOpen=!formOpen;
-  editingId=null; // sempre reseta ao abrir/cancelar
   const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
   card.style.display=formOpen?'block':'none';
   btn.textContent=formOpen?'✕ Cancelar':'+ Novo Atestado';
   btn.classList.toggle('cancel',formOpen);
-  document.getElementById('formHeadLabel').textContent='📄 Registrar Novo Atestado';
-  document.getElementById('btnSave').textContent='💾 Registrar Atestado';
   if(formOpen){ populateFormSup(); populateFormCargo(); setTipoDoc('Atestado'); } else clearForm();
 }
 function clearForm(){
-  ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs','f_declQtd','f_declResumo']
+  ['f_funcionario','f_matricula','f_dataEntrega','f_dataInicio','f_dataFim','f_dias','f_cid','f_medico','f_crm','f_hospital','f_obs','f_declQtd','f_declResumo','f_declData','f_declHoraDe','f_declHoraAte']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('f_setor').value='';
   document.getElementById('f_supervisor').value='';
   document.getElementById('f_cargo').value='';
-  document.getElementById('f_declUnidade').value='horas';
   setTipoDoc('Atestado');
 }
 function calcDias(){
   const ini=document.getElementById('f_dataInicio').value, fim=document.getElementById('f_dataFim').value;
   if(ini&&fim){ const d=Math.round((new Date(fim)-new Date(ini))/86400000)+1; document.getElementById('f_dias').value=d>0?`${d} dia(s)`:''; }
+  else document.getElementById('f_dias').value='';
+}
+function updateDeclResumo(){
+  const de=document.getElementById('f_declHoraDe').value;
+  const ate=document.getElementById('f_declHoraAte').value;
+  const data=document.getElementById('f_declData').value;
+  if(de && ate){
+    const [h1,m1]=de.split(':').map(Number), [h2,m2]=ate.split(':').map(Number);
+    const totalMin=(h2*60+m2)-(h1*60+m1);
+    if(totalMin>0){
+      const hrs=Math.floor(totalMin/60), mins=totalMin%60;
+      const hrsStr=mins>0?`${hrs}h${mins}min`:`${hrs}h`;
+      document.getElementById('f_declQtd').value=hrsStr;
+      const dataFmt=data?` — ${data.split('-').reverse().join('/')}` :'';
+      document.getElementById('f_declResumo').value=`${de} às ${ate} (${hrsStr})${dataFmt}`;
+    } else {
+      document.getElementById('f_declQtd').value='';
+      document.getElementById('f_declResumo').value='Hora inválida';
+    }
+  } else {
+    document.getElementById('f_declQtd').value='';
+    document.getElementById('f_declResumo').value='';
+  }
 }
 async function submitForm(){
   const v=id=>document.getElementById(id).value.trim();
-  if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega')||!v('f_dataInicio')||!v('f_dataFim'))
+  if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega'))
     { showToast('Preencha os campos obrigatórios (*)','error'); return; }
   const ini=v('f_dataInicio'), fim=v('f_dataFim');
-  const dias=Math.round((new Date(fim)-new Date(ini))/86400000)+1;
+  const dias=(ini&&fim)?Math.round((new Date(fim)-new Date(ini))/86400000)+1:0;
   const tipoDoc=document.getElementById('btnTipoDecl').classList.contains('active')?'Declaração':'Atestado';
   const declQtd=v('f_declQtd');
-  const declUnidade=document.getElementById('f_declUnidade').value;
-  const declResumo=declQtd?`${declQtd} ${declUnidade}`:'';
-  const dados = {
+  const declData=v('f_declData');
+  const declHoraDe=v('f_declHoraDe');
+  const declHoraAte=v('f_declHoraAte');
+  const declResumo=v('f_declResumo');
+  const novo = {
     tipoDoc,
     funcionario:v('f_funcionario'), matricula:v('f_matricula'),
     cargo:v('f_cargo'), setor:v('f_setor'), supervisor:v('f_supervisor'),
     dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
-    diasAfastamento:dias>0?dias:1, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
-    hospital:v('f_hospital'), observacao:v('f_obs'),
-    ...(tipoDoc==='Declaração' && declQtd ? { declQtd, declUnidade, declResumo } : { declQtd:'', declUnidade:'horas', declResumo:'' }),
+    diasAfastamento:dias>0?dias:0, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
+    hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
+    ...(tipoDoc==='Declaração' && (declQtd||declData) ? { declQtd, declData, declHoraDe, declHoraAte, declResumo } : {}),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
   try {
-    if(editingId){
-      // ── EDITAR atestado existente ───────────────────────
-      await db.collection('atestados').doc(editingId).update(dados);
-      editingId=null;
-      formOpen=false;
-      document.getElementById('formCard').style.display='none';
-      const btn=document.getElementById('btnAdd');
-      btn.textContent='+ Novo Atestado'; btn.classList.remove('cancel');
-      document.getElementById('btnSave').textContent='💾 Registrar Atestado';
-      clearForm();
-      showToast('Atestado atualizado com sucesso!');
-    } else {
-      // ── NOVO atestado ────────────────────────────────────
-      dados.status='Pendente';
-      dados.createdAt=firebase.firestore.FieldValue.serverTimestamp();
-      await db.collection('atestados').add(dados);
-      toggleForm();
-      showToast(tipoDoc==='Declaração'?'Declaração registrada com sucesso!':'Atestado registrado com sucesso!');
-    }
+    await db.collection('atestados').add(novo);
+    toggleForm();
+    showToast(tipoDoc==='Declaração'?'Declaração registrada com sucesso!':'Atestado registrado com sucesso!');
   } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
-}
-
-// ── EDITAR ATESTADO ───────────────────────────────────────
-function editAtestado(docId, evt){
-  if(evt) evt.stopPropagation();
-  const a=atestados.find(x=>x._docId===docId); if(!a) return;
-  // Fechar modal se estiver aberto
-  document.getElementById('overlay').classList.remove('open');
-  // Ir para aba atestados e abrir formulário
-  switchTab('atestados');
-  editingId=docId;
-  formOpen=true;
-  populateFormSup(); populateFormCargo();
-
-  // Pre-preencher todos os campos
-  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.value=val||''; };
-  set('f_funcionario', a.funcionario);
-  set('f_matricula',   a.matricula);
-  set('f_cargo',       a.cargo);
-  set('f_setor',       a.setor);
-  set('f_supervisor',  a.supervisor);
-  set('f_dataEntrega', a.dataEntrega);
-  set('f_dataInicio',  a.dataInicio);
-  set('f_dataFim',     a.dataFim);
-  set('f_cid',         a.cid);
-  set('f_medico',      a.medico);
-  set('f_crm',         a.crm);
-  set('f_hospital',    a.hospital);
-  set('f_obs',         a.observacao);
-  calcDias();
-
-  // Tipo de documento
-  const isDecl = a.tipoDoc === 'Declaração';
-  setTipoDoc(isDecl ? 'Declaração' : 'Atestado');
-  if(isDecl){
-    set('f_declQtd',    a.declQtd);
-    set('f_declUnidade',a.declUnidade||'horas');
-    set('f_declResumo', a.declResumo);
-    if(document.getElementById('f_declUnidade').value !== (a.declUnidade||'horas'))
-      document.getElementById('f_declUnidade').value = a.declUnidade||'horas';
-  }
-
-  // UI do formulário
-  const card=document.getElementById('formCard'), btn=document.getElementById('btnAdd');
-  card.style.display='block';
-  btn.textContent='✕ Cancelar'; btn.classList.add('cancel');
-  document.getElementById('formHeadLabel').textContent=`✏️ Editando Atestado — ${a.funcionario}`;
-  document.getElementById('btnSave').textContent='💾 Salvar Alterações';
-
-  // Rolar até o formulário
-  card.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -1241,7 +1185,9 @@ function openModal(docId){
     ['CID',a.cid||'—'],['Médico',a.medico||'—'],['CRM',a.crm||'—'],
   ];
   if(a.tipoDoc==='Declaração' && a.declResumo){
-    fields.push(['Duração (Decl.)',a.declResumo]);
+    if(a.declData) fields.push(['Data da Declaração', a.declData.split('-').reverse().join('/')]);
+    if(a.declHoraDe && a.declHoraAte) fields.push(['Período','Das '+a.declHoraDe+' às '+a.declHoraAte]);
+    fields.push(['Duração (Decl.)',a.declQtd||a.declResumo]);
   }
   document.getElementById('mFields').innerHTML=fields
     .map(([l,v])=>`<div class="mf"><div class="mf-label">${l}</div><div class="mf-value">${v}</div></div>`).join('');
@@ -1309,11 +1255,6 @@ function setTipoDoc(tipo){
     document.getElementById('f_declQtd').value='';
     document.getElementById('f_declResumo').value='';
   }
-}
-function updateDeclResumo(){
-  const qtd=document.getElementById('f_declQtd').value.trim();
-  const und=document.getElementById('f_declUnidade').value;
-  document.getElementById('f_declResumo').value=qtd?`${qtd} ${und}`:'—';
 }
 
 // ══════════════════════════════════════════════════════════
