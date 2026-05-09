@@ -152,6 +152,24 @@
   .form-obs textarea{width:100%;resize:vertical;font-family:'Barlow',sans-serif;padding:9px 13px;
     border:1.5px solid var(--gray-border);border-radius:9px;font-size:13px;background:#fafbff;outline:none;transition:border .2s}
   .form-obs textarea:focus{border-color:var(--blue)}
+  /* UPLOAD FOTO */
+  .form-upload{padding:0 26px 14px}
+  .form-upload label{display:block;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .upload-area{border:2px dashed var(--gray-border);border-radius:12px;padding:20px;text-align:center;
+    background:#fafbff;cursor:pointer;transition:all .2s;position:relative}
+  .upload-area:hover,.upload-area.dragover{border-color:var(--blue);background:var(--blue-light)}
+  .upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .upload-icon{font-size:28px;margin-bottom:6px}
+  .upload-text{font-size:13px;font-weight:700;color:var(--blue-dark)}
+  .upload-sub{font-size:11px;color:#aaa;margin-top:2px}
+  .upload-preview{display:none;margin-top:12px;position:relative;display:none}
+  .upload-preview img{max-height:180px;border-radius:10px;border:2px solid var(--blue-mid);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+  .upload-preview-name{font-size:12px;color:#666;margin-top:6px;font-weight:600}
+  .upload-remove{position:absolute;top:-8px;right:-8px;width:24px;height:24px;border-radius:50%;
+    background:#dc3545;color:#fff;border:none;cursor:pointer;font-size:14px;line-height:1;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .upload-remove:hover{background:#b71c1c}
+
   .form-footer{padding:14px 26px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
   .btn-cancel2{padding:10px 20px;background:#fff;border:1.5px solid #ddd;border-radius:9px;
     cursor:pointer;font-size:13px;color:#666;font-family:'Barlow',sans-serif;font-weight:600}
@@ -289,6 +307,23 @@
   .modal-obs-view{padding:0 28px 16px;font-size:13px;color:#555}
   .modal-obs-view strong{color:#888;font-weight:700}
   .modal-actions{padding:16px 28px 24px;border-top:1px solid #eef0f5;display:flex;justify-content:flex-end;gap:10px}
+  /* Foto do atestado no modal */
+  .modal-foto{padding:0 28px 18px}
+  .modal-foto-label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:block}
+  .modal-foto img{max-width:100%;max-height:280px;border-radius:10px;border:2px solid var(--blue-mid);
+    box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer;transition:transform .2s;display:block}
+  .modal-foto img:hover{transform:scale(1.02)}
+  .modal-foto-empty{font-size:13px;color:#bbb;font-style:italic}
+  .btn-download-foto{display:inline-flex;align-items:center;gap:7px;margin-top:10px;
+    padding:9px 18px;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue-mid);
+    border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Barlow',sans-serif;
+    transition:all .2s;text-decoration:none}
+  .btn-download-foto:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+  /* Lightbox */
+  #lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;
+    align-items:center;justify-content:center;cursor:zoom-out}
+  #lightbox.open{display:flex}
+  #lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
   .btn-recusar{padding:11px 24px;background:var(--red-bg);color:var(--red);border:1.5px solid #f5c6cb;
     border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
   .btn-recusar:hover{background:#dc3545;color:#fff;border-color:#dc3545}
@@ -616,6 +651,25 @@
           <label>Observações</label>
           <textarea id="f_obs" rows="3" placeholder="Observações adicionais…"></textarea>
         </div>
+        <div class="form-upload">
+          <label>📎 Foto / Imagem do Atestado</label>
+          <div class="upload-area" id="uploadArea"
+               ondragover="event.preventDefault();this.classList.add('dragover')"
+               ondragleave="this.classList.remove('dragover')"
+               ondrop="handleDrop(event)">
+            <input type="file" id="f_foto" accept="image/*" onchange="handleFileSelect(this)">
+            <div id="uploadPlaceholder">
+              <div class="upload-icon">🖼️</div>
+              <div class="upload-text">Clique ou arraste a imagem aqui</div>
+              <div class="upload-sub">PNG, JPG, JPEG ou WEBP · Máx. 5 MB</div>
+            </div>
+            <div class="upload-preview" id="uploadPreview" style="display:none">
+              <img id="uploadImg" src="" alt="Preview">
+              <button class="upload-remove" onclick="removeUpload(event)" title="Remover imagem">✕</button>
+              <div class="upload-preview-name" id="uploadFileName"></div>
+            </div>
+          </div>
+        </div>
         <div class="form-footer">
           <button class="btn-cancel2" onclick="toggleForm()">Cancelar</button>
           <button class="btn-save" onclick="submitForm()">💾 Registrar Atestado</button>
@@ -794,6 +848,11 @@
     <div class="modal-obs-view" id="mObsView" style="display:none">
       <strong>Obs. do RH: </strong><span id="mObsText"></span>
     </div>
+    <!-- Foto do atestado -->
+    <div class="modal-foto" id="mFotoArea" style="display:none">
+      <span class="modal-foto-label">📎 Foto do Atestado</span>
+      <div id="mFotoContent"></div>
+    </div>
     <div class="modal-actions"  id="mActions" style="display:none">
       <button class="btn-excluir" id="mBtnExcluir" onclick="deleteAtestadoModal()">🗑️ Excluir</button>
       <button class="btn-recusar" id="mBtnRecusar" onclick="validateAtestado('Recusado')">✕ Recusar</button>
@@ -803,6 +862,8 @@
 </div>
 
 <div id="toast"></div>
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt="Foto do atestado"></div>
 
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -887,6 +948,7 @@ let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestad
 let atestados    = [];
 let supervisores = [];
 let cargos       = [];
+let fotoBase64   = null; // armazena a imagem em base64 temporariamente
 
 // Cargos padrão que serão criados automaticamente na 1ª inicialização
 const CARGOS_PADRAO = [
@@ -1109,6 +1171,13 @@ function clearForm(){
   document.getElementById('f_setor').value='';
   document.getElementById('f_supervisor').value='';
   document.getElementById('f_cargo').value='';
+  // limpar upload
+  fotoBase64 = null;
+  document.getElementById('f_foto').value='';
+  document.getElementById('uploadPlaceholder').style.display='block';
+  document.getElementById('uploadPreview').style.display='none';
+  document.getElementById('uploadImg').src='';
+  document.getElementById('uploadFileName').textContent='';
   setTipoDoc('Atestado');
 }
 function calcDias(){
@@ -1138,6 +1207,49 @@ function updateDeclResumo(){
     document.getElementById('f_declResumo').value='';
   }
 }
+// ── UPLOAD FOTO ───────────────────────────────────────────
+function handleFileSelect(input){
+  const file = input.files[0];
+  if(!file) return;
+  processUploadFile(file);
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if(!file || !file.type.startsWith('image/')) { showToast('Somente imagens são aceitas.','error'); return; }
+  processUploadFile(file);
+}
+function processUploadFile(file){
+  if(file.size > 5 * 1024 * 1024){ showToast('Imagem muito grande. Máximo: 5 MB.','error'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    fotoBase64 = e.target.result;
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+    const preview = document.getElementById('uploadPreview');
+    preview.style.display = 'block';
+    document.getElementById('uploadImg').src = fotoBase64;
+    document.getElementById('uploadFileName').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+function removeUpload(e){
+  e.stopPropagation();
+  fotoBase64 = null;
+  document.getElementById('f_foto').value = '';
+  document.getElementById('uploadPlaceholder').style.display = 'block';
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadImg').src = '';
+  document.getElementById('uploadFileName').textContent = '';
+}
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+
 async function submitForm(){
   const v=id=>document.getElementById(id).value.trim();
   if(!v('f_funcionario')||!v('f_matricula')||!v('f_dataEntrega'))
@@ -1157,6 +1269,7 @@ async function submitForm(){
     dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
     diasAfastamento:dias>0?dias:0, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
     hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
+    ...(fotoBase64 ? { foto: fotoBase64 } : {}),
     ...(tipoDoc==='Declaração' && (declQtd||declData) ? { declQtd, declData, declHoraDe, declHoraAte, declResumo } : {}),
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -1194,6 +1307,20 @@ function openModal(docId){
   const oa=document.getElementById('mObsArea'),ov=document.getElementById('mObsView'),
         ma=document.getElementById('mActions'),mo=document.getElementById('mObs');
   oa.style.display=ov.style.display=ma.style.display='none';
+  // Foto
+  const mfa=document.getElementById('mFotoArea'), mfc=document.getElementById('mFotoContent');
+  if(a.foto){
+    mfa.style.display='block';
+    const ext = a.foto.startsWith('data:image/png') ? 'png' : a.foto.startsWith('data:image/webp') ? 'webp' : 'jpg';
+    const nomeArq = `atestado_${a.matricula}_${a.funcionario.replace(/\s+/g,'_')}.${ext}`;
+    mfc.innerHTML=`
+      <img src="${a.foto}" alt="Foto do atestado" onclick="openLightbox(this.src)">
+      <a class="btn-download-foto" href="${a.foto}" download="${nomeArq}">⬇️ Baixar Foto do Atestado</a>
+    `;
+  } else {
+    mfa.style.display='none';
+    mfc.innerHTML='';
+  }
   if(currentRole==='rh'){
     oa.style.display='block'; mo.value=a.observacao||'';
     ma.style.display='flex';
