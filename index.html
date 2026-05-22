@@ -311,14 +311,9 @@
   .modal-foto{padding:0 28px 18px}
   .modal-foto-label{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:block}
   .modal-foto img{max-width:100%;max-height:280px;border-radius:10px;border:2px solid var(--blue-mid);
-    box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer;transition:transform .2s;display:block}
+    box-shadow:0 4px 16px rgba(0,0,0,.12);cursor:pointer;transition:transform .2s}
   .modal-foto img:hover{transform:scale(1.02)}
   .modal-foto-empty{font-size:13px;color:#bbb;font-style:italic}
-  .btn-download-foto{display:inline-flex;align-items:center;gap:7px;margin-top:10px;
-    padding:9px 18px;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue-mid);
-    border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:'Barlow',sans-serif;
-    transition:all .2s;text-decoration:none}
-  .btn-download-foto:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
   /* Lightbox */
   #lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;
     align-items:center;justify-content:center;cursor:zoom-out}
@@ -867,8 +862,8 @@
 
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 <script>
 // ══════════════════════════════════════════════════════════
@@ -885,7 +880,6 @@ const FIREBASE_CFG = {
 };
 
 let db = null;
-let storage = null;
 let unsubAtestados    = null;
 let unsubSupervisores = null;
 let unsubCargos       = null;
@@ -896,8 +890,9 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   try {
     if(firebase.apps.length){ await firebase.app().delete(); }
     firebase.initializeApp(FIREBASE_CFG);
+    // Login anônimo automático — necessário para regras auth != null
+    await firebase.auth().signInAnonymously();
     db = firebase.firestore();
-    storage = firebase.storage();
     await db.collection('supervisores').limit(1).get();
     hideLoading();
     showLoginScreen();
@@ -951,7 +946,7 @@ let currentRole = null, currentId = null, formOpen = false, activeTab = 'atestad
 let atestados    = [];
 let supervisores = [];
 let cargos       = [];
-let fotoFile = null; // arquivo de imagem selecionado
+let fotoBase64   = null; // armazena a imagem em base64 temporariamente
 
 // Cargos padrão que serão criados automaticamente na 1ª inicialização
 const CARGOS_PADRAO = [
@@ -1175,7 +1170,7 @@ function clearForm(){
   document.getElementById('f_supervisor').value='';
   document.getElementById('f_cargo').value='';
   // limpar upload
-  fotoFile = null;
+  fotoBase64 = null;
   document.getElementById('f_foto').value='';
   document.getElementById('uploadPlaceholder').style.display='block';
   document.getElementById('uploadPreview').style.display='none';
@@ -1225,20 +1220,20 @@ function handleDrop(e){
 }
 function processUploadFile(file){
   if(file.size > 5 * 1024 * 1024){ showToast('Imagem muito grande. Máximo: 5 MB.','error'); return; }
-  fotoFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
+    fotoBase64 = e.target.result;
     document.getElementById('uploadPlaceholder').style.display = 'none';
     const preview = document.getElementById('uploadPreview');
     preview.style.display = 'block';
-    document.getElementById('uploadImg').src = e.target.result;
+    document.getElementById('uploadImg').src = fotoBase64;
     document.getElementById('uploadFileName').textContent = file.name;
   };
   reader.readAsDataURL(file);
 }
 function removeUpload(e){
   e.stopPropagation();
-  fotoFile = null;
+  fotoBase64 = null;
   document.getElementById('f_foto').value = '';
   document.getElementById('uploadPlaceholder').style.display = 'block';
   document.getElementById('uploadPreview').style.display = 'none';
@@ -1251,20 +1246,6 @@ function openLightbox(src){
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
-}
-async function downloadFoto(url, nome){
-  try {
-    const resp = await fetch(url);
-    const blob = await resp.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = nome;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  } catch(e){
-    // fallback: abre em nova aba
-    window.open(url, '_blank');
-  }
 }
 
 async function submitForm(){
@@ -1279,46 +1260,22 @@ async function submitForm(){
   const declHoraDe=v('f_declHoraDe');
   const declHoraAte=v('f_declHoraAte');
   const declResumo=v('f_declResumo');
-
-  // Botão de salvar — feedback visual
-  const btnSave = document.querySelector('.btn-save');
-  btnSave.disabled = true;
-  btnSave.textContent = '⏳ Salvando…';
-
+  const novo = {
+    tipoDoc,
+    funcionario:v('f_funcionario'), matricula:v('f_matricula'),
+    cargo:v('f_cargo'), setor:v('f_setor'), supervisor:v('f_supervisor'),
+    dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
+    diasAfastamento:dias>0?dias:0, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
+    hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
+    ...(fotoBase64 ? { foto: fotoBase64 } : {}),
+    ...(tipoDoc==='Declaração' && (declQtd||declData) ? { declQtd, declData, declHoraDe, declHoraAte, declResumo } : {}),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
   try {
-    // 1. Upload da foto ao Firebase Storage (se houver)
-    let fotoURL = null;
-    if(fotoFile){
-      btnSave.textContent = '📤 Enviando foto…';
-      const ext = fotoFile.name.split('.').pop();
-      const path = `atestados/${Date.now()}_${v('f_matricula').replace(/\W/g,'')}.${ext}`;
-      const ref = storage.ref(path);
-      await ref.put(fotoFile);
-      fotoURL = await ref.getDownloadURL();
-    }
-
-    // 2. Salvar documento no Firestore
-    btnSave.textContent = '💾 Salvando…';
-    const novo = {
-      tipoDoc,
-      funcionario:v('f_funcionario'), matricula:v('f_matricula'),
-      cargo:v('f_cargo'), setor:v('f_setor'), supervisor:v('f_supervisor'),
-      dataEntrega:v('f_dataEntrega'), dataInicio:ini, dataFim:fim,
-      diasAfastamento:dias>0?dias:0, cid:v('f_cid'), medico:v('f_medico'), crm:v('f_crm'),
-      hospital:v('f_hospital'), status:'Pendente', observacao:v('f_obs'),
-      ...(fotoURL ? { foto: fotoURL } : {}),
-      ...(tipoDoc==='Declaração' && (declQtd||declData) ? { declQtd, declData, declHoraDe, declHoraAte, declResumo } : {}),
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
     await db.collection('atestados').add(novo);
     toggleForm();
     showToast(tipoDoc==='Declaração'?'Declaração registrada com sucesso!':'Atestado registrado com sucesso!');
-  } catch(err){
-    showToast('Erro ao salvar: '+err.message,'error');
-  } finally {
-    btnSave.disabled = false;
-    btnSave.textContent = '💾 Registrar Atestado';
-  }
+  } catch(err){ showToast('Erro ao salvar: '+err.message,'error'); }
 }
 
 // ── MODAL ─────────────────────────────────────────────────
@@ -1352,11 +1309,7 @@ function openModal(docId){
   const mfa=document.getElementById('mFotoArea'), mfc=document.getElementById('mFotoContent');
   if(a.foto){
     mfa.style.display='block';
-    const nomeArq = `atestado_${a.matricula}_${a.funcionario.replace(/\s+/g,'_')}.jpg`;
-    mfc.innerHTML=`
-      <img src="${a.foto}" alt="Foto do atestado" onclick="openLightbox(this.src)">
-      <button class="btn-download-foto" onclick="downloadFoto('${a.foto.replace(/'/g,"\\'")}','${nomeArq.replace(/'/g,"\\'")}')">⬇️ Baixar Foto do Atestado</button>
-    `;
+    mfc.innerHTML=`<img src="${a.foto}" alt="Foto do atestado" onclick="openLightbox('${a.foto.replace(/'/g,"\\'")}')">`;
   } else {
     mfa.style.display='none';
     mfc.innerHTML='';
