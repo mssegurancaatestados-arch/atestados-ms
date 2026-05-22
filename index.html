@@ -889,6 +889,8 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   try {
     if(firebase.apps.length){ await firebase.app().delete(); }
     firebase.initializeApp(FIREBASE_CFG);
+    // Login anônimo automático — necessário para regras auth != null
+    await firebase.auth().signInAnonymously();
     db = firebase.firestore();
     await db.collection('supervisores').limit(1).get();
     hideLoading();
